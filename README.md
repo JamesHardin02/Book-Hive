@@ -1,2 +1,2 @@
-# CSC-154_Group-7
-Code base for Wake Tech Community College FA2025 CSC-154 Group 7 agile-scrum group project
+# CSC.289
+Code base for Wake Tech Community College SP2026 CSC.289 Team 1 capstone project
