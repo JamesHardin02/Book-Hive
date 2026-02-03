@@ -76,7 +76,7 @@ Meet quality and security targets: passwords hashed (bcrypt), JWT-based authenti
 
 - People: 1 Project Manager/Scrum Master (James Hardin) + 6 Software Engineers.
 - Hardware (dev): ≥8 GB RAM, ≥4 CPU cores, ≥20 GB free disk per developer workstation; stable internet.
-- Software: Python 3.x, FastAPI, SQLAlchemy + pyodbc, SQL Server (Developer/Express), Node.js, Vue.js, Plotly, Git client, VS Code (or equivalent).
+- Software: Python 3.x, FastAPI, SQLAlchemy + mysqlclient, MySQL, Node.js(dev), Nuxt/Vue.js, Plotly, Git client, VS Code (or equivalent IDE).
 - Services/tools: GitHub (repo + PRs), Trello (backlog/sprints), MS Teams (chat/meetings/files).
 - External dependency: OpenLibrary API for book metadata lookup.
 
@@ -100,7 +100,7 @@ Meet quality and security targets: passwords hashed (bcrypt), JWT-based authenti
 ## Project Management Plan and Methodologies
 
 - Methodology: Agile/Scrum with short iterations (1–2 weeks) aligned to the course schedule.
-- Ceremonies: sprint planning, weekly sync (Teams), sprint review/demo, and sprint retrospective.
+- Ceremonies: sprint planning, weekly sync, sprint review/demo, and sprint retrospective.
 - Definition of Done: code merged to main via pull request, acceptance criteria met, basic manual QA pass, feature documented, and demo-ready using seeded data.
 - Backlog management: Project manager maintains product backlog in Trello; sprint backlog committed during planning; scope changes handled via MoSCoW reprioritization.
 
