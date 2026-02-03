@@ -16,7 +16,7 @@ on:
 # Avoid wasting minutes on stale runs
 concurrency:
   # The "concurrency group" is like a traffic-lane name.
-  # Any workflow runs with the SAAME group are mutually exclusive:
+  # Any workflow runs with the SAME group are mutually exclusive:
   #  - only 1 run executes at a time, and
   #  - if a new run starts, the old one gets canceled (cancel-in-progress: true)
   #
@@ -26,7 +26,7 @@ concurrency:
   #
   # Result:
   #  - pushing multiple commits quickly to the same branch cancels older runs for that branch
-  #  - other branches/PRs still run in parallel (different group values)defaults:
+  #  - other branches/PRs still run in parallel (different group values)
   group: lint-${{ github.ref }}
   cancel-in-progress: true
 
@@ -57,7 +57,11 @@ jobs:
       
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        # Security best practice:
+        # Pin actions to a full commit SHA so the workflow always runs the exact same code,
+        # even if someone retags a version later. GitHub recommends SHA pinning. 
+        # (Dependabot can keep these updated automatically)
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
           # Why checkout? GitHub runners start with an empty workspace
           # This step clones the repository into $GITHUB_WORKSPACE so later steps can read files.
@@ -72,13 +76,13 @@ jobs:
           #  - true (default): later steps can "git push" using the token
           #  - false: token is NOT persisted; reduces risk of pushing code if a later step is compromised.
           # Set to false because this workflow should NOT push code back to the repo.
-          # This workflow checks readability standards of code and eventualy QA tests and build success
+          # This workflow checks readability standards of code and eventually QA tests and build success
           # before pull requests are made. Requests are only pushed after manual review and approval by code owner.
           persist-credentials: false
           
       - name: Run Super-Linter
-        # Use the official Super-Linter action repo for v8.x
-        uses: super-linter/super-linter@v8.4.0
+        # Use the official Super-Linter action repo for v8.4.0
+        uses: super-linter/super-linter@12562e48d7059cf666c43a4ecb0d3b5a2b31bd9e
         env:
           # GITHUB_TOKEN is an automatically created token for each workflow run
           # Passing it enables authenticated GitHub API calls (like creating status checks).
@@ -92,8 +96,17 @@ jobs:
           # set this to true temporarily to force linting the entire repo.
           VALIDATE_ALL_CODEBASE: false
 
-          # WARN keeps logs readable; bump to INFO/DEBUG when troubleshootingl
+          # WARN keeps logs readable; bump to INFO/DEBUG when troubleshooting
           LOG_LEVEL: WARN
+
+          # Silence the "summary" warning in CI logs
+          # Super-Linter docs: enabling PR comments or step summaries implies saving a summary.
+          SAVE_SUPER_LINTER_SUMMARY: true
+          ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
+          ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: true
+
+          # Suppress commitlint warning until a commit message standard is choosen.
+          VALIDATE_GIT_COMMITLINT: false
 
           # ───────────────────────────────────────────────────────────────────────
           # FUTURE DEVELOPMENT (when real code arrives)
