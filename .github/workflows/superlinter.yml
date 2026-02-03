@@ -1,0 +1,139 @@
+name: Super-Linter
+
+# Alias dictionary
+# PR = Pull Request
+
+on:
+  # Run the quality gate on every PR into main (most important trigger). 
+  pull_request:
+    branches: [main]
+  # Also run on pushes to main (keeps main clean if pushed directly).
+  push:
+    branches: [main]
+  # Allow manual runs from the Actions tab (useful during setup & debugging).
+  workflow_dispatch:
+
+# Avoid wasting minutes on stale runs
+concurrency:
+  # The "concurrency group" is like a traffic-lane name.
+  # Any workflow runs with the SAAME group are mutually exclusive:
+  #  - only 1 run executes at a time, and
+  #  - if a new run starts, the old one gets canceled (cancel-in-progress: true)
+  #
+  # github.ref is the git reference for what triggered the run:
+  #  - pushes look like:    refs/heads/main, refs/head/feature/foo
+  #  - PRs often look like: refs/pull/<id>/merge
+  #
+  # Result:
+  #  - pushing multiple commits quickly to the same branch cancels older runs for that branch
+  #  - other branches/PRs still run in parallel (different group values)defaults:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+# Start with no permissions at the workflow level (least-privilege by default). 
+# Then we grant only what the job needs below.
+permissions: {}
+
+jobs:
+  super-lint:
+    name: Lint code base
+    runs-on: ubuntu-latest
+
+    permissions:
+      # contents: read lets the workflow read the repository code
+      contents: read
+      
+      # packages: read lets it pull images from GitHub Container Registry
+      # (Super-Linter runs inside a container under the hood).
+      packages: read
+      
+      # These are optional, but helpful:
+      #  - statuses: write allows the workflow to publish a status check result
+      #  - pull/requests/issues: write allows PR annotations/comments/notes
+      statuses: write
+      pull-requests: write
+      issues: write
+      # GitHub recommends granting the minimum required permissions to GITHUB_TOKEN.
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          # Why checkout? GitHub runners start with an empty workspace
+          # This step clones the repository into $GITHUB_WORKSPACE so later steps can read files.
+
+          # fetch-depth controls how much git history we download:
+          #  - default is shallow (usually 1 commit), faster but limited
+          #  - fetch-depth: 0 fetches FULL history for branches/tags
+          # Super-Linter can use git history to determine what changed between commits/PRs.
+          fetch-depth: 0
+          
+          # persist-credentials controls whether the checkout token is stored in .git/config.
+          #  - true (default): later steps can "git push" using the token
+          #  - false: token is NOT persisted; reduces risk of pushing code if a later step is compromised.
+          # Set to false because this workflow should NOT push code back to the repo.
+          # This workflow checks readability standards of code and eventualy QA tests and build success
+          # before pull requests are made. Requests are only pushed after manual review and approval by code owner.
+          persist-credentials: false
+          
+      - name: Run Super-Linter
+        # Use the official Super-Linter action repo for v8.x
+        uses: github/super-linter@v8.4.0
+        env:
+          # GITHUB_TOKEN is an automatically created token for each workflow run
+          # Passing it enables authenticated GitHub API calls (like creating status checks).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          DEFAULT_BRANCH: main
+
+          # Early-project default:
+          # Lint only files changed in the pull request (faster, less noisy)
+          # If ran manually on main and it says "nothing to lint",
+          # set this to true temporarily to force linting the entire repo.
+          VALIDATE_ALL_CODEBASE: false
+
+          # WARN keeps logs readable; bump to INFO/DEBUG when troubleshootingl
+          LOG_LEVEL: WARN
+
+          # ───────────────────────────────────────────────────────────────────────
+          # FUTURE DEVELOPMENT (when real code arrives)
+          #
+          # 1) Add targeted linters/formatters:
+          #    - Backend (Python/FastAPI): ruff + pytest
+          #    - Frontend (Vue): eslint + prettier + unit tests
+          #
+          # 2) Add dedicated test jobs (recommended once /backend and /frontend exists):
+          #
+          # jobs:
+          #   backend-tests:
+          #     runs-on: ubuntu-latest
+          #     steps:
+          #       - checkout
+          #       - setup-python (choose a pinned Python version)
+          #       - install dependencies (pip install -r requirements.txt)
+          #       - run ruff (lint/format check)
+          #       - run pytest (unit tests)
+          #
+          #   frontend-tests:
+          #     runs-on: ubuntu-latest
+          #     steps:
+          #       - checkout
+          #       - setup-node (choose pinned Node version)
+          #       - npm ci
+          #       - npm run lint
+          #       - npm test
+          #
+          # 3) Add a build job (optional until ready to demo/deploy):
+          #    - build frontend (npm run build)
+          #    - build backend artifact (optional)
+          #    - upload artifacts so you can download build outputs from the run
+          #
+          #   build:
+          #     needs: [backend-tests, frontend-tests]
+          #     steps:
+          #       - checkout
+          #       - build steps...
+          #       - upload-artifact
+          #
+          # CD (auto-deploy) is intentionally postponed until the deployment target is decided.
+          # ───────────────────────────────────────────────────────────────────────
