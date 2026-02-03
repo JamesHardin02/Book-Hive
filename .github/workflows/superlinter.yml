@@ -4,12 +4,14 @@ name: Super-Linter
 # PR = Pull Request
 
 on:
-  # Run the quality gate on every PR into main (most important trigger). 
+  # Run the quality gate on every PR into main (most important trigger).
   pull_request:
-    branches: [main]
+    branches:
+      - main
   # Also run on pushes to main (keeps main clean if pushed directly).
   push:
-    branches: [main]
+    branches:
+      - main
   # Allow manual runs from the Actions tab (useful during setup & debugging).
   workflow_dispatch:
 
@@ -30,7 +32,7 @@ concurrency:
   group: lint-${{ github.ref }}
   cancel-in-progress: true
 
-# Start with no permissions at the workflow level (least-privilege by default). 
+# Start with no permissions at the workflow level (least-privilege by default).
 # Then we grant only what the job needs below.
 permissions: {}
 
@@ -42,11 +44,11 @@ jobs:
     permissions:
       # contents: read lets the workflow read the repository code
       contents: read
-      
+
       # packages: read lets it pull images from GitHub Container Registry
       # (Super-Linter runs inside a container under the hood).
       packages: read
-      
+
       # These are optional, but helpful:
       #  - statuses: write allows the workflow to publish a status check result
       #  - pull/requests/issues: write allows PR annotations/comments/notes
@@ -54,12 +56,12 @@ jobs:
       pull-requests: write
       issues: write
       # GitHub recommends granting the minimum required permissions to GITHUB_TOKEN.
-      
+
     steps:
       - name: Checkout code
         # Security best practice:
         # Pin actions to a full commit SHA so the workflow always runs the exact same code,
-        # even if someone retags a version later. GitHub recommends SHA pinning. 
+        # even if someone retags a version later. GitHub recommends SHA pinning.
         # (Dependabot can keep these updated automatically)
         uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
@@ -71,7 +73,7 @@ jobs:
           #  - fetch-depth: 0 fetches FULL history for branches/tags
           # Super-Linter can use git history to determine what changed between commits/PRs.
           fetch-depth: 0
-          
+
           # persist-credentials controls whether the checkout token is stored in .git/config.
           #  - true (default): later steps can "git push" using the token
           #  - false: token is NOT persisted; reduces risk of pushing code if a later step is compromised.
@@ -79,7 +81,7 @@ jobs:
           # This workflow checks readability standards of code and eventually QA tests and build success
           # before pull requests are made. Requests are only pushed after manual review and approval by code owner.
           persist-credentials: false
-          
+
       - name: Run Super-Linter
         # Use the official Super-Linter action repo for v8.4.0
         uses: super-linter/super-linter@12562e48d7059cf666c43a4ecb0d3b5a2b31bd9e
@@ -87,7 +89,7 @@ jobs:
           # GITHUB_TOKEN is an automatically created token for each workflow run
           # Passing it enables authenticated GitHub API calls (like creating status checks).
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
           DEFAULT_BRANCH: main
 
           # Early-project default:
@@ -105,7 +107,7 @@ jobs:
           ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
           ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: true
 
-          # Suppress commitlint warning until a commit message standard is choosen.
+          # Suppress commit lint warning until a commit message standard is choosen.
           VALIDATE_GIT_COMMITLINT: false
 
           # ───────────────────────────────────────────────────────────────────────
