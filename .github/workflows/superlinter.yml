@@ -110,6 +110,14 @@ jobs:
           # Suppress commit lint warning until a commit message standard is chosen.
           VALIDATE_GIT_COMMITLINT: false
 
+          # --- Python: use Ruff only by diabling conflicting linters (avoid conflicts/noise) ---
+          VALIDATE_PYTHON: false          # disables legacy "python" validator (pylint)
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_MYPY: false
+          VALIDATE_PYTHON_PYLINT: false
+
           # ───────────────────────────────────────────────────────────────────────
           # FUTURE DEVELOPMENT (when real code arrives)
           #

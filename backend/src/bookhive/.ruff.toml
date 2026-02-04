@@ -1,0 +1,36 @@
+# Ruff config for BookHive backend
+# Ruff handles both:
+#  - linting:   ruff check
+#  - formatting: ruff format
+#
+# Goal: keep standards consistent + keep CI noise low early on.
+
+target-version = "py313"
+line-length = 100
+
+extend-exclude = [
+  ".venv",
+  "backend/.venv",
+  "frontend/node_modules",
+  "super-linter-output",
+]
+
+[lint]
+# Lint/Formatter set:
+# E/F = pycodestyle/pyflakes (core correctness)
+# I   = import sorting (replaces isort)
+# B   = common bug patterns (flake8-bugbear)
+# UP  = modernize syntax (pyupgrade)
+select = ["E", "F", "I", "B", "UP"]
+
+# Ruff formatter handles line wrapping; avoid double-reporting
+ignore = ["E501"]
+
+# Allow auto-fix for safe issues
+fixable = ["ALL"]
+
+[format]
+# Keep formatting predictable
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
