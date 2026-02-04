@@ -18,6 +18,7 @@ desktop.ini         # Windows
 /build
 /node_modules
 /.venv
+backend/.venv
 /__pycache__/
 /*.egg-info
 *.log
@@ -25,6 +26,7 @@ desktop.ini         # Windows
 # Environment and config
 .env
 .env.local
+backend/.env
 *.pem
 *.key
 *.crt
