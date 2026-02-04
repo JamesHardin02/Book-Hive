@@ -113,7 +113,7 @@ jobs:
           VALIDATE_GIT_COMMITLINT: false
 
           # --- Python: use Ruff only by disabling conflicting linters (avoid conflicts/noise) ---
-          VALIDATE_PYTHON: false          # disables legacy "python" validator (pylint)
+          VALIDATE_PYTHON: false # disables legacy "python" validator (pylint)
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_FLAKE8: false
           VALIDATE_PYTHON_ISORT: false
