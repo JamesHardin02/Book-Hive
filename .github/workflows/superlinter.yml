@@ -94,12 +94,6 @@ jobs:
 
           DEFAULT_BRANCH: main
 
-          # Early-project default:
-          # Lint only files changed in the pull request (faster, less noisy)
-          # If ran manually on main and it says "nothing to lint",
-          # set this to true temporarily to force linting the entire repo.
-          VALIDATE_ALL_CODEBASE: false
-
           # WARN keeps logs readable; bump to INFO/DEBUG when troubleshooting
           LOG_LEVEL: WARN
 
@@ -108,9 +102,6 @@ jobs:
           SAVE_SUPER_LINTER_SUMMARY: true
           ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: true
           ENABLE_GITHUB_PULL_REQUEST_SUMMARY_COMMENT: true
-
-          # Suppress commit lint warning until a commit message standard is chosen.
-          VALIDATE_GIT_COMMITLINT: false
 
           # ✅ Allowlist: only run these validators
           VALIDATE_GITHUB_ACTIONS: true
