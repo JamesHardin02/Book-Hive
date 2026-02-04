@@ -8,12 +8,12 @@ Project Name: BookHive \
 
 | Name                           | Email                           | Role              |
 | ------------------------------ | ------------------------------- | ----------------- |
-| Alex Shelley                   | ashelley@my.waketech.edu        | Software Engineer |
-| Alejandro Jesus Vilchis-Orozco | ajvilchisorozco@my.waketech.edu | Software Engineer |
-| Charles Rasberry               | cfrasberry@my.waketech.edu      | Software Engineer |
-| Yazeed Nedal Ahmad Herz Allah  | ynherzallah@waketech.edu        | Software Engineer |
-| Matthew Dove                   | madove@my.waketech.edu          | Software Engineer |
-| Emmanuel Rudy Dawah            | erdawah@my.waketech.edu         | Software Engineer |
+| Alex Shelley                   | <ashelley@my.waketech.edu>        | Software Engineer |
+| Alejandro Jesus Vilchis-Orozco | <ajvilchisorozco@my.waketech.edu> | Software Engineer |
+| Charles Rasberry               | <cfrasberry@my.waketech.edu>      | Software Engineer |
+| Yazeed Nedal Ahmad Herz Allah  | <ynherzallah@waketech.edu>        | Software Engineer |
+| Matthew Dove                   | <madove@my.waketech.edu>          | Software Engineer |
+| Emmanuel Rudy Dawah            | <erdawah@my.waketech.edu>         | Software Engineer |
 
 ## Project Goal
 

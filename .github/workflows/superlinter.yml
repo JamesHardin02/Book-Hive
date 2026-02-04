@@ -112,17 +112,57 @@ jobs:
           # Suppress commit lint warning until a commit message standard is chosen.
           VALIDATE_GIT_COMMITLINT: false
 
-          # --- Python: use Ruff only by disabling conflicting linters (avoid conflicts/noise) ---
-          VALIDATE_PYTHON: false # disables legacy "python" validator (pylint)
-          VALIDATE_PYTHON_BLACK: false
-          VALIDATE_PYTHON_FLAKE8: false
-          VALIDATE_PYTHON_ISORT: false
-          VALIDATE_PYTHON_MYPY: false
-          VALIDATE_PYTHON_PYLINT: false
+          # ✅ Allowlist: only run these validators
+          VALIDATE_GITHUB_ACTIONS: true
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: true
+          VALIDATE_YAML_PRETTIER: true
+          VALIDATE_MARKDOWN: true
+          VALIDATE_MARKDOWN_PRETTIER: true
+          VALIDATE_JSON_PRETTIER: true
 
-          # --- Disable Biome (Prettier formatting used as standard instead) ---
-          VALIDATE_BIOME_FORMAT: false
-          VALIDATE_BIOME_LINT: false
+  backend-lint:
+    name: Backend (Ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Setup Python
+        uses: actions/setup-python@e797f83b33d3de2ac9f006730e890f9b6bf56f66 # v6.0.0
+        with:
+          python-version: "3.13"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt -r backend/requirements-dev.txt
+
+      - name: Ruff lint
+        run: ruff check backend
+
+      - name: Ruff format (check)
+        run: ruff format --check backend
+
+  frontend-lint:
+    name: Frontend (ESLint + Prettier)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Setup Node
+        uses: actions/setup-node@a0853c245cb5bfdd139334bda48d8cb792a6d57c # v5.0.0
+        with:
+          node-version: "24"
+
+      - name: Install deps
+        run: npm ci --prefix frontend
+
+      - name: Lint
+        run: npm run lint --prefix frontend
+
+      - name: Format (check)
+        run: npm run format:check --prefix frontend
 
           # ───────────────────────────────────────────────────────────────────────
           # FUTURE DEVELOPMENT (when real code arrives)

@@ -16,7 +16,7 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
-## Configure env:
+## Configure env
 
 - Copy `backend/.env.example` to `backend/.env`; keep values for local dev db connection.
 
@@ -44,7 +44,7 @@ curl http://localhost:8000/health
 
 - expected response should be the following
 
-```
+```bash
 {"ok":true,"db":"connected"}
 ```
 

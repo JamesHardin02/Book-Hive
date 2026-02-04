@@ -1,11 +1,11 @@
-## Local Development (Backend)
+# Local Development (Backend)
 
-### Prereqs
+## Prereqs
 
 - Python 3.13
 - Docker Desktop
 
-### Setup
+## Setup
 
 1. Start MySQL:
    - `docker compose up -d`
