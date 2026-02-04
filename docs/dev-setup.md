@@ -1,12 +1,14 @@
-# root directory setup
+# Dev setup
 
-```
+## root directory setup
+
+```bash
 npm install
 ```
 
-# backend directory setup
+## backend directory setup
 
-```
+```bash
 cd backend
 py -3.13 -m venv .venv
 source .venv/Scripts/activate
@@ -14,14 +16,16 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
-# Database setup (from root directory)
+## Database setup (from root directory)
 
-```
+```bash
 docker compose up -d
 ```
 
-# run backend server
+## run backend server
 
-```
-python -m uvicorn bookhive.main:app --reload --app-dir --port 8000
+```bash
+cd backend
+source .venv/Scripts/activate
+python -m uvicorn bookhive.main:app --reload --app-dir src --port 8000
 ```
