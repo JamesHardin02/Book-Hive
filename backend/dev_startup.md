@@ -13,6 +13,7 @@
    - `py -3.13 -m venv .venv`
    - `source .venv/Scripts/activate`
    - `pip install -r requirements.txt`
+   - `pip install -r requirements-dev.txt`
 
 3) Configure env:
    - Copy `backend/.env.example` to `backend/.env`; keep values for local dev db connection.
