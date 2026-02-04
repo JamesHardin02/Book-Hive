@@ -120,6 +120,10 @@ jobs:
           VALIDATE_PYTHON_MYPY: false
           VALIDATE_PYTHON_PYLINT: false
 
+          # --- Disable Biome (Prettier formatting used as standard instead) ---
+          VALIDATE_BIOME_FORMAT: false
+          VALIDATE_BIOME_LINT: false
+
           # ───────────────────────────────────────────────────────────────────────
           # FUTURE DEVELOPMENT (when real code arrives)
           #
