@@ -7,10 +7,12 @@ on:
   # Run the quality gate on every PR into main (most important trigger).
   pull_request:
     branches:
+      - develop
       - main
   # Also run on pushes to main (keeps main clean if pushed directly).
   push:
     branches:
+      - develop
       - main
   # Allow manual runs from the Actions tab (useful during setup & debugging).
   workflow_dispatch:
