@@ -38,7 +38,7 @@ python -m uvicorn bookhive.main:app --reload --app-dir src --port 8000
 
 - In a new terminal after set up the server execute the following
 
-```
+```bash
 curl http://localhost:8000/health
 ```
 
@@ -47,3 +47,16 @@ curl http://localhost:8000/health
 ```
 {"ok":true,"db":"connected"}
 ```
+
+## Frontend setup
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm run dev
+```
+
+- npm run dev will start both the backend server and the frontend
+- The backend needs to be running for /ApiStatus to pass confirmation test to the database
+- default Windows .cmd file launches backend via npm run dev. Switch concurrently backend launch command to dev:backend:bash if developing on MacOS/Unix/Linux systems

@@ -17,6 +17,7 @@ desktop.ini         # Windows
 /dist
 /build
 /node_modules
+**/node_modules/
 /.venv
 backend/.venv
 /__pycache__/
@@ -27,6 +28,8 @@ backend/.venv
 .env
 .env.local
 backend/.env
+frontend/.env
+frontend/.env/local
 *.pem
 *.key
 *.crt
