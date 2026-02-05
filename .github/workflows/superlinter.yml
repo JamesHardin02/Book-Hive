@@ -117,9 +117,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          # Reduce token exposure risk (zizmor "artipacked" audit)
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@e797f83b33d3de2ac9f006730e890f9b6bf56f66 # v6.0.0
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: "3.13"
 
@@ -140,9 +143,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          # Reduce token exposure risk (zizmor "artipacked" audit)
+          persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@a0853c245cb5bfdd139334bda48d8cb792a6d57c # v5.0.0
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: "24"
 
@@ -153,48 +159,47 @@ jobs:
         run: npm run lint --prefix frontend
 
       - name: Format (check)
-        run:
-          npm run format:check --prefix frontend
+        run: npm run format:check --prefix frontend
 
-          # ───────────────────────────────────────────────────────────────────────
-          # FUTURE DEVELOPMENT (when real code arrives)
-          #
-          # 1) Add targeted linters/formatters:
-          #    - Backend (Python/FastAPI): ruff + pytest
-          #    - Frontend (Vue): eslint + prettier + unit tests
-          #
-          # 2) Add dedicated test jobs (recommended once /backend and /frontend exists):
-          #
-          # jobs:
-          #   backend-tests:
-          #     runs-on: ubuntu-latest
-          #     steps:
-          #       - checkout
-          #       - setup-python (choose a pinned Python version)
-          #       - install dependencies (pip install -r requirements.txt)
-          #       - run ruff (lint/format check)
-          #       - run pytest (unit tests)
-          #
-          #   frontend-tests:
-          #     runs-on: ubuntu-latest
-          #     steps:
-          #       - checkout
-          #       - setup-node (choose pinned Node version)
-          #       - npm ci
-          #       - npm run lint
-          #       - npm test
-          #
-          # 3) Add a build job (optional until ready to demo/deploy):
-          #    - build frontend (npm run build)
-          #    - build backend artifact (optional)
-          #    - upload artifacts so you can download build outputs from the run
-          #
-          #   build:
-          #     needs: [backend-tests, frontend-tests]
-          #     steps:
-          #       - checkout
-          #       - build steps...
-          #       - upload-artifact
-          #
-          # CD (auto-deploy) is intentionally postponed until the deployment target is decided.
-          # ───────────────────────────────────────────────────────────────────────
+      # ───────────────────────────────────────────────────────────────────────
+      # FUTURE DEVELOPMENT (when real code arrives)
+      #
+      # 1) Add targeted linters/formatters:
+      #    - Backend (Python/FastAPI): ruff + pytest
+      #    - Frontend (Vue): eslint + prettier + unit tests
+      #
+      # 2) Add dedicated test jobs (recommended once /backend and /frontend exists):
+      #
+      # jobs:
+      #   backend-tests:
+      #     runs-on: ubuntu-latest
+      #     steps:
+      #       - checkout
+      #       - setup-python (choose a pinned Python version)
+      #       - install dependencies (pip install -r requirements.txt)
+      #       - run ruff (lint/format check)
+      #       - run pytest (unit tests)
+      #
+      #   frontend-tests:
+      #     runs-on: ubuntu-latest
+      #     steps:
+      #       - checkout
+      #       - setup-node (choose pinned Node version)
+      #       - npm ci
+      #       - npm run lint
+      #       - npm test
+      #
+      # 3) Add a build job (optional until ready to demo/deploy):
+      #    - build frontend (npm run build)
+      #    - build backend artifact (optional)
+      #    - upload artifacts so you can download build outputs from the run
+      #
+      #   build:
+      #     needs: [backend-tests, frontend-tests]
+      #     steps:
+      #       - checkout
+      #       - build steps...
+      #       - upload-artifact
+      #
+      # CD (auto-deploy) is intentionally postponed until the deployment target is decided.
+      # ───────────────────────────────────────────────────────────────────────

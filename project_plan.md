@@ -93,7 +93,7 @@ Meet quality and security targets: passwords hashed (bcrypt), JWT-based authenti
 - Definition of Done: code merged to main via pull request, acceptance criteria met, basic manual QA pass, feature documented, and demo-ready using seeded data.
 - Backlog management: Project manager maintains product backlog in Trello; sprint backlog committed during planning; scope changes handled via MoSCoW reprioritization.
 
-### Version Control:
+### Version Control
 
 - Branch naming: `feature/<trello-card-id>-short-title`.
 - Pull request required for merges to `main`.
