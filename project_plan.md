@@ -6,8 +6,8 @@ Project Name: BookHive \
 
 ## Team Member Details
 
-| Name                           | Email                           | Role              |
-| ------------------------------ | ------------------------------- | ----------------- |
+| Name                           | Email                             | Role              |
+| ------------------------------ | --------------------------------- | ----------------- |
 | Alex Shelley                   | <ashelley@my.waketech.edu>        | Software Engineer |
 | Alejandro Jesus Vilchis-Orozco | <ajvilchisorozco@my.waketech.edu> | Software Engineer |
 | Charles Rasberry               | <cfrasberry@my.waketech.edu>      | Software Engineer |

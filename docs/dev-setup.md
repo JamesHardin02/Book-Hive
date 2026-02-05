@@ -10,6 +10,7 @@ npm install
 
 ```bash
 cd backend
+python.exe -m pip install --upgrade pip
 py -3.13 -m venv .venv
 source .venv/Scripts/activate
 pip install -r requirements.txt
@@ -24,6 +25,12 @@ pip install -r requirements-dev.txt
 
 ```bash
 docker compose up -d
+```
+
+## Run this when you are ready to shut down
+
+```bash
+docker compose down -v
 ```
 
 ## run backend server
@@ -54,6 +61,12 @@ curl http://localhost:8000/health
 cd frontend
 npm install
 cp .env.example .env
+npm run dev
+```
+
+## root run (root directory)
+
+```bash
 npm run dev
 ```
 

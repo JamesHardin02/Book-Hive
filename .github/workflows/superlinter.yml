@@ -153,7 +153,8 @@ jobs:
         run: npm run lint --prefix frontend
 
       - name: Format (check)
-        run: npm run format:check --prefix frontend
+        run:
+          npm run format:check --prefix frontend
 
           # ───────────────────────────────────────────────────────────────────────
           # FUTURE DEVELOPMENT (when real code arrives)
