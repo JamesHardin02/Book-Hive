@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from bookhive.api.health import router as health_router
+from bookhive.db.init_db import init_db
 
 app = FastAPI(title="BookHive API")
 
@@ -21,3 +22,7 @@ app.add_middleware(
 )
 
 app.include_router(health_router)
+
+@app.on_event("startup")
+def on_startup() -> None:
+  init_db()
