@@ -23,6 +23,7 @@ app.add_middleware(
 
 app.include_router(health_router)
 
+
 @app.on_event("startup")
 def on_startup() -> None:
-  init_db()
+    init_db()

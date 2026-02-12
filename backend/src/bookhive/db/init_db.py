@@ -6,4 +6,4 @@ from bookhive.db.models.user import User  # noqa: F401
 
 
 def init_db() -> None:
-  Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
