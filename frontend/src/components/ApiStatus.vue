@@ -18,6 +18,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <nav></nav>
   <div style="padding: 12px; border: 5px solid #ccc; border-radius: 8px">
     <strong>Backend health:</strong>
     <span v-if="ok === true"> ✅ OK</span>
