@@ -13,18 +13,14 @@ import BaseButton from '@/components/BaseButton.vue'
       />
       <h1>Book Hive</h1>
     </header>
-    <div id="sign-in">
-      <h2>Sign In</h2>
+    <div id="register">
+      <h2>Register Account</h2>
       <form>
         <input type="text" placeholder="Username" />
         <input type="password" placeholder="Password" />
-        <RouterLink to="/dashboard">
-          <BaseButton type="submit" />
+        <RouterLink to="/">
+          <BaseButton type="button" message="Create Now"/>
         </RouterLink>
-        <RouterLink to="/register">
-         <BaseButton type="button" message="Create Account" />
-        </RouterLink>
-
       </form>
     </div>
     <footer>
@@ -66,7 +62,7 @@ h2 {
   justify-content: center;
 }
 
-#sign-in {
+#register {
   margin: 0 22%;
 }
 
@@ -91,10 +87,8 @@ footer {
 
 /* Tablets and up*/
 @media (min-width: 770px) {
-  #sign-in {
+  #register {
     margin: 0 25%;
   }
 }
-
-
 </style>
