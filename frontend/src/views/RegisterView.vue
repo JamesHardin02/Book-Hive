@@ -19,7 +19,7 @@ import BaseButton from '@/components/BaseButton.vue'
         <input type="text" placeholder="Username" />
         <input type="password" placeholder="Password" />
         <RouterLink to="/">
-          <BaseButton type="button" message="Create Now"/>
+          <BaseButton type="button" message="Create Now" />
         </RouterLink>
       </form>
     </div>

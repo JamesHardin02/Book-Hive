@@ -16,6 +16,9 @@ const router = createRouter({
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
     },
+    { path: '/checkout', 
+      name: 'Checkout', 
+      component: () => import('@/views/CheckoutPage.vue') },
     {
       path: '/apistatus',
       name: 'api status',

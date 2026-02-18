@@ -22,9 +22,8 @@ import BaseButton from '@/components/BaseButton.vue'
           <BaseButton type="submit" />
         </RouterLink>
         <RouterLink to="/register">
-         <BaseButton type="button" message="Create Account" />
+          <BaseButton type="button" message="Create Account" />
         </RouterLink>
-
       </form>
     </div>
     <footer>
@@ -95,6 +94,4 @@ footer {
     margin: 0 25%;
   }
 }
-
-
 </style>
