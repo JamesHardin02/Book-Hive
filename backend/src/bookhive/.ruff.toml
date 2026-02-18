@@ -29,6 +29,11 @@ ignore = ["E501"]
 # Allow auto-fix for safe issues
 fixable = ["ALL"]
 
+[lint.per-file-ignores]
+"backend/src/bookhive/api/*.py" = ["B008"]
+"backend/src/bookhive/auth/*.py" = ["B008"]
+"backend/src/bookhive/db/deps.py" = ["B008"]
+
 [format]
 # Keep formatting predictable
 quote-style = "double"
