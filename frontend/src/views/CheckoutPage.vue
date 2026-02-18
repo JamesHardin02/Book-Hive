@@ -140,8 +140,8 @@ menu {
 }
 
 /* Tablets and higher */
-@media (min-width: 460px){
-  #book{
+@media (min-width: 460px) {
+  #book {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -149,7 +149,7 @@ menu {
 }
 
 /* Tablets and higher */
-@media (min-width: 768px){
+@media (min-width: 768px) {
   form {
     max-width: 1100px;
     display: grid;
