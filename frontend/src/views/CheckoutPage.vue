@@ -5,8 +5,8 @@ import PageHeader from '@/components/PageHeader.vue'
 <template>
   <PageHeader page="Checkout / Record Sale" />
 
-  <div class="checkout-container">
-    <div class="section">
+  <form>
+    <section>
       <h2>Member Lookup</h2>
 
       <label>Enter Member Name Here:</label>
@@ -20,11 +20,11 @@ import PageHeader from '@/components/PageHeader.vue'
       </select>
 
       <button>Register Member</button>
-    </div>
+    </section>
 
-    <div class="section">
+    <section>
       <h2>Checkout / Record Sale Guide</h2>
-      <div class="guide-box">
+      <div id="guide-box">
         <p>If more than one member has the same name, select their ID.</p>
         <p>If only 1 ID is present it is automatically selected.</p>
         <p>
@@ -32,52 +32,44 @@ import PageHeader from '@/components/PageHeader.vue'
         </p>
         <p>To record the sale of this book, membership is optional.</p>
       </div>
-    </div>
+    </section>
 
-    <div class="section full">
-      <div class="book-section">
-        <div class="book-cover">BOOK COVER<br />PLACEHOLDER</div>
+    <section id="book">
+      <span>BOOK COVER<br />PLACEHOLDER</span>
 
-        <div class="book-details">
-          <p><strong>Title:</strong> Lorem Ipsum</p>
-          <p><strong>Author:</strong> Jane Doe</p>
-          <p><strong>ISBN:</strong> 123-3-3893-9292-2</p>
-          <p><strong>Year:</strong> Earliest – 1998; Latest – 2001</p>
-          <p><strong>Aisle:</strong> B</p>
-          <p><strong>Shelf:</strong> 2</p>
+      <article>
+        <p><strong>Title:</strong> Lorem Ipsum</p>
+        <p><strong>Author:</strong> Jane Doe</p>
+        <p><strong>ISBN:</strong> 123-3-3893-9292-2</p>
+        <p><strong>Year:</strong> Earliest – 1998; Latest – 2001</p>
+        <p><strong>Aisle:</strong> B</p>
+        <p><strong>Shelf:</strong> 2</p>
 
-          <div class="action-buttons">
-            <button>Checkout</button>
-            <button>Record Sale</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+        <menu>
+          <button>Checkout</button>
+          <button>Record Sale</button>
+        </menu>
+      </article>
+    </section>
+  </form>
 </template>
 
 <style scoped>
-.checkout-container {
-  max-width: 1100px;
+form {
   margin: 40px auto;
   padding: 24px;
   background: var(--color-background-soft);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 32px;
 }
 
-.section {
+section {
   padding: 20px;
   background: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: 6px;
-}
-
-.section.full {
-  grid-column: span 2;
 }
 
 h2 {
@@ -117,19 +109,7 @@ button:hover {
   background: #1f2d3a;
 }
 
-.guide-box {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--color-text);
-}
-
-.book-section {
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-}
-
-.book-cover {
+span {
   width: 140px;
   height: 200px;
   background: var(--color-background-mute);
@@ -142,13 +122,44 @@ button:hover {
   padding: 8px;
 }
 
-.book-details p {
+article p {
   margin-bottom: 6px;
 }
 
-.action-buttons {
+menu {
   margin-top: 20px;
   display: flex;
   gap: 12px;
+  padding: 0px;
+}
+
+#guide-box {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+/* Tablets and higher */
+@media (min-width: 460px){
+  #book{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* Tablets and higher */
+@media (min-width: 768px){
+  form {
+    max-width: 1100px;
+    display: grid;
+  }
+
+  #book {
+    grid-column: span 2;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: flex-start;
+  }
 }
 </style>
