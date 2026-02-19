@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
 
-# Output file
 OUTPUT="codebase_dump.txt"
-
-# Remove old dump if it exists
 rm -f "$OUTPUT"
 
-# Run the find command
 find . -type f \
   ! -path "*/node_modules/*" \
   ! -path "*/.git/*" \
@@ -15,7 +11,7 @@ find . -type f \
   ! -path "*/.ruff_cache/*" \
   ! -path "*/playwright-report/*" \
   ! -path "*/frontend/test-results/*" \
-  ! -path "*/.venv/*" \
+  ! -ipath "*/.venv/*" \
   ! -name "package-lock.json" \
   ! -name ".env*" \
   ! -name "$OUTPUT" \
