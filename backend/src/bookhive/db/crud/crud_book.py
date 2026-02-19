@@ -20,7 +20,7 @@ def create_book(
     year: int,
     unit_price: float | None,
     cover_url: str | None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     book = crud_book.create_book(
         db=db,
@@ -30,7 +30,7 @@ def create_book(
         genre=genre,
         year=year,
         unit_price=unit_price,
-        cover_url=cover_url
+        cover_url=cover_url,
     )
     return {"id": book.id, "title": book.title}
 
@@ -52,7 +52,7 @@ def read_book(book_id: int, db: Session = Depends(get_db)):
         "year": book.year,
         "unit_price": str(book.unit_price),
         "cover_url": book.cover_url,
-        "created_at": str(book.created_at)
+        "created_at": str(book.created_at),
     }
 
 
@@ -69,8 +69,9 @@ def list_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
             "year": b.year,
             "unit_price": str(b.unit_price),
             "cover_url": b.cover_url,
-            "created_at": str(b.created_at)
-        } for b in books
+            "created_at": str(b.created_at),
+        }
+        for b in books
     ]
 
 
@@ -86,7 +87,7 @@ def update_book(
     year: int | None | None,
     unit_price: float | None | None,
     cover_url: str | None | None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     book = crud_book.update_book(
         db=db,
@@ -96,7 +97,7 @@ def update_book(
         genre=genre,
         year=year,
         unit_price=unit_price,
-        cover_url=cover_url
+        cover_url=cover_url,
     )
     if not book:
         raise HTTPException(status_code=404, detail="Book not found")

@@ -17,5 +17,5 @@ class Loan(Base):
 
     book = relationship("Book", back_populates="loans")
     member = relationship("Member", back_populates="loans")
-    
-    __table_args__ = (CheckConstraint('due_date >= created_at', name='check_due_date'),)
+
+    __table_args__ = (CheckConstraint("due_date >= created_at", name="check_due_date"),)
