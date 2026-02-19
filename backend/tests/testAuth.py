@@ -3,10 +3,7 @@ import unittest
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
-
 import logging
-logging.getLogger("passlib.handlers.bcrypt").setLevel(logging.ERROR)
 
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -18,6 +15,10 @@ from bookhive.db.base import Base
 from bookhive.db.models.user import User
 from bookhive.auth.dependencies import get_current_user
 
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+)
+logging.getLogger("passlib.handlers.bcrypt").setLevel(logging.ERROR)
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test_auth.db"
 
@@ -29,7 +30,6 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 
 class AuthTestCase(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         Base.metadata.drop_all(bind=engine)
@@ -49,7 +49,7 @@ class AuthTestCase(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        engine.dispose() 
+        engine.dispose()
 
     def tearDown(self):
         self.db.close()
