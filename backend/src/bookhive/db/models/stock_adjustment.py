@@ -1,6 +1,7 @@
 from datetime import date
+
 from bookhive.db.base import Base
-from sqlalchemy import String, Integer, Date, ForeignKey
+from sqlalchemy import Date, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 

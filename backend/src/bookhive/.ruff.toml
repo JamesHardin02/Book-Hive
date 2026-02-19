@@ -24,7 +24,7 @@ extend-exclude = [
 select = ["E", "F", "I", "B", "UP"]
 
 # Ruff formatter handles line wrapping; avoid double-reporting
-ignore = ["E501"]
+ignore = ["E501", "B008"]
 
 # Allow auto-fix for safe issues
 fixable = ["ALL"]

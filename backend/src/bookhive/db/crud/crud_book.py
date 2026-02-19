@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-from decimal import Decimal
-from typing import list, Optional
+from typing import list
 
-from bookhive.db.engine import get_db  # function to provide SQLAlchemy session
-from bookhive.models import Book
 from bookhive.crud import crud_book  # the CRUD file we just made
+from bookhive.db.engine import get_db  # function to provide SQLAlchemy session
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/books", tags=["books"])
 
@@ -20,8 +18,8 @@ def create_book(
     author: str,
     genre: str,
     year: int,
-    unit_price: Optional[Decimal] = 0.0,
-    cover_url: Optional[str] = "",
+    unit_price: float | None,
+    cover_url: str | None,
     db: Session = Depends(get_db)
 ):
     book = crud_book.create_book(
@@ -82,12 +80,12 @@ def list_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 @router.put("/{book_id}", response_model=dict)
 def update_book(
     book_id: int,
-    title: Optional[str] = "",
-    author: Optional[str] = "",
-    genre: Optional[str] = "",
-    year: Optional[int] = 0000,
-    unit_price: Optional[Decimal] = 0.0,
-    cover_url: Optional[str] = "",
+    title: str | None | None,
+    author: str | None | None,
+    genre: str | None | None,
+    year: int | None | None,
+    unit_price: float | None | None,
+    cover_url: str | None | None,
     db: Session = Depends(get_db)
 ):
     book = crud_book.update_book(

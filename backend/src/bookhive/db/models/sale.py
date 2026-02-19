@@ -1,8 +1,9 @@
 from datetime import date
-from bookhive.db.base import Base
-from sqlalchemy import Integer, ForeignKey, Numeric, Date
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from decimal import Decimal
+
+from bookhive.db.base import Base
+from sqlalchemy import Date, ForeignKey, Integer, Numeric
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 
 class Sale(Base):
