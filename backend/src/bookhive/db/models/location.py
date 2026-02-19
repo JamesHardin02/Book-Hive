@@ -12,4 +12,4 @@ class Location(Base):
     
     inventory = relationship("Inventory", back_populates="location")
 
-    __table_args__ = (UniqueConstraint("aisle", "shelf"))
+    __table_args__ = (UniqueConstraint("aisle", "shelf"),)

@@ -16,5 +16,5 @@ class Inventory(Base):
 
     __table_args__ = (
         CheckConstraint("on_hand >= 0", name="ck_inventory_on_hand_nonnegative"),
-        CheckConstraint("min_threshold >= 0")
+        CheckConstraint("min_threshold >= 0"),
     )

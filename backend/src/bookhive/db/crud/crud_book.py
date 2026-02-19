@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from decimal import Decimal
-from typing import List, Optional
+from typing import list, Optional
 
 from bookhive.db.engine import get_db  # function to provide SQLAlchemy session
 from bookhive.models import Book
@@ -20,8 +20,8 @@ def create_book(
     author: str,
     genre: str,
     year: int,
-    unit_price: Optional[Decimal] = None,
-    cover_url: Optional[str] = None,
+    unit_price: Optional[Decimal] = 0.0,
+    cover_url: Optional[str] = "",
     db: Session = Depends(get_db)
 ):
     book = crud_book.create_book(
@@ -58,7 +58,7 @@ def read_book(book_id: int, db: Session = Depends(get_db)):
     }
 
 
-@router.get("", response_model=List[dict])
+@router.get("", response_model=list[dict])
 def list_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     books = crud_book.get_books(db, skip=skip, limit=limit)
     return [
@@ -82,12 +82,12 @@ def list_books(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 @router.put("/{book_id}", response_model=dict)
 def update_book(
     book_id: int,
-    title: Optional[str] = None,
-    author: Optional[str] = None,
-    genre: Optional[str] = None,
-    year: Optional[int] = None,
-    unit_price: Optional[Decimal] = None,
-    cover_url: Optional[str] = None,
+    title: Optional[str] = "",
+    author: Optional[str] = "",
+    genre: Optional[str] = "",
+    year: Optional[int] = 0000,
+    unit_price: Optional[Decimal] = 0.0,
+    cover_url: Optional[str] = "",
     db: Session = Depends(get_db)
 ):
     book = crud_book.update_book(

@@ -18,6 +18,7 @@ class Book(Base):
     cover_url: Mapped[str] = mapped_column(String(255))
     created_at: Mapped[date] = mapped_column(Date, default=date.today, nullable=False)
 
+    # relationships used with mapped function rather than assigning to variable?
     inventory = relationship("Inventory", back_populates="book")
     stock_adjustments = relationship("Stock_Adjustment", back_populates="book")
     sales = relationship("Sale", back_populates="book")
