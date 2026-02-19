@@ -43,3 +43,6 @@ frontend/.env/local
 *.tmp
 *.cache
 *.lock
+
+# Code base copy into simple txt file by dump.sh
+codebase_dump.txt
