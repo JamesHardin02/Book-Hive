@@ -8,6 +8,7 @@ import { RouterLink } from 'vue-router'
     <RouterLink to="/dashboard">Dashboard</RouterLink>
     <RouterLink to="/search">Search</RouterLink>
     <RouterLink to="/apistatus">Api Status</RouterLink>
+    <RouterLink to="/checkout">Checkout</RouterLink>
   </nav>
 </template>
 
