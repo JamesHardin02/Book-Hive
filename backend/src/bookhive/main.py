@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -28,4 +30,6 @@ app.include_router(auth_router)
 
 @app.on_event("startup")
 def on_startup() -> None:
+    if os.getenv("BOOKHIVE_ENV") == "test":
+        return
     init_db()

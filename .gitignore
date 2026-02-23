@@ -22,6 +22,7 @@ desktop.ini         # Windows
 backend/.venv
 /__pycache__/
 backend/**/__pycache__/
+test_*.db
 /*.egg-info
 *.log
 
