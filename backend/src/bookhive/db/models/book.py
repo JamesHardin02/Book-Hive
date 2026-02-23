@@ -15,8 +15,8 @@ class Book(Base):
     author: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
     genre: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
     year: Mapped[int] = mapped_column(Integer, index=True, nullable=False)
-    unit_price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
-    cover_url: Mapped[str] = mapped_column(String(255))
+    unit_price: Mapped[Decimal | None] = mapped_column(Numeric(10, 2), nullable=True)
+    cover_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[date] = mapped_column(Date, default=date.today, nullable=False)
 
     # relationships used with mapped function rather than assigning to variable?

@@ -14,8 +14,5 @@ class Member(Base):
     phone_number: Mapped[str] = mapped_column(String(30), index=True, nullable=False)
     created_at: Mapped[date] = mapped_column(Date, nullable=False)
 
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    is_admin: Mapped[bool] = mapped_column(Boolean, default=True)
-
     sales = relationship("Sale", back_populates="member")
     loans = relationship("Loan", back_populates="member")
