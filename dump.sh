@@ -14,6 +14,7 @@ find . -type f \
   ! -ipath "*/.venv/*" \
   ! -name "package-lock.json" \
   ! -name ".env*" \
+  ! -name "test_*.db" \
   ! -name "$OUTPUT" \
   ! -iregex ".*\.\(jpg\|jpeg\|png\|gif\|bmp\|tiff\|ico\|svg\|webp\)" \
   ! -iregex ".*\.\(mp3\|wav\|flac\|ogg\|m4a\)" \
