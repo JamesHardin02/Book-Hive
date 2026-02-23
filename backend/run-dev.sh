@@ -2,15 +2,20 @@
 set -euo pipefail
 
 # Always run from backend/ so:
-# - --app-dir src points to backend/src
 # - python-dotenv loads backend/.env
+# - --app-dir src resolves to backend/src
 cd "$(dirname "$0")"
 
-VENV_PY="$(pwd)/.venv/Scripts/python.exe"
-
-if [[ ! -f "$VENV_PY" ]]; then
-  echo "ERROR: Could not find venv python at: $VENV_PY"
-  echo "Create it with: cd backend && py -3.13 -m venv .venv"
+# Detect venv python path:
+# - Windows Git Bash: .venv/Scripts/python.exe
+# - macOS/Linux:      .venv/bin/python
+if [[ -f ".venv/Scripts/python.exe" ]]; then
+  VENV_PY="$(pwd)/.venv/Scripts/python.exe"
+elif [[ -f ".venv/bin/python" ]]; then
+  VENV_PY="$(pwd)/.venv/bin/python"
+else
+  echo "ERROR: Could not find venv python."
+  echo "Create it with: cd backend && python -m venv .venv"
   exit 1
 fi
 
@@ -19,3 +24,4 @@ fi
   --host 0.0.0.0 \
   --port 8000 \
   --app-dir src
+  
