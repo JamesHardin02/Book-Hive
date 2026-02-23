@@ -39,7 +39,7 @@ class AuthTestCase(unittest.TestCase):
     def setUpClass(cls):
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
-    
+
     @classmethod
     def tearDownClass(cls):
         engine.dispose()
