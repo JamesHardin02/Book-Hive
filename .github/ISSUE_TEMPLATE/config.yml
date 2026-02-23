@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Team coordination (MS Teams)
+    url: https://teams.microsoft.com/
+    about: Use Teams for coordination and sprint planning discussions.

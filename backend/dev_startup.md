@@ -10,6 +10,16 @@
 1. Start MySQL:
    - `docker compose up -d`
 
+### (Optional) Check successful DB table creation through MySQL CLI
+
+```bash
+mysql -u root -p -h 127.0.0.1 -P 3307
+USE bookhive;
+SELECT DATABASE();
+SHOW DATABASES;
+SHOW TABLES;
+```
+
 2. Create/activate venv and install deps:
    - `cd backend`
    - `py -3.13 -m venv .venv`
