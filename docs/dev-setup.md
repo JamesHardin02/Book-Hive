@@ -27,7 +27,7 @@ pip install -r requirements-dev.txt
 docker compose up -d
 ```
 
-#### (Optional) Check successful DB table creation through MySQL CLI
+### (Optional) Check successful DB table creation through MySQL CLI
 
 ```bash
 mysql -u root -p -h 127.0.0.1 -P 3307
