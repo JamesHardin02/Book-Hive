@@ -13,7 +13,7 @@ class Loan(Base):
     member_id: Mapped[int] = mapped_column(ForeignKey("member.id"), index=True, nullable=False)
     created_at: Mapped[date] = mapped_column(Date, default=date.today, nullable=False)
     due_date: Mapped[date] = mapped_column(Date, index=True, nullable=False)
-    returned_at: Mapped[date] = mapped_column(Date)
+    returned_at: Mapped[date] = mapped_column(Date, nullable=True, default=None)
 
     book = relationship("Book", back_populates="loans")
     member = relationship("Member", back_populates="loans")

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import list
 
 from bookhive.crud import crud_book  # the CRUD file we just made
@@ -18,7 +19,7 @@ def create_book(
     author: str,
     genre: str,
     year: int,
-    unit_price: float | None,
+    unit_price: Decimal | None,
     cover_url: str | None,
     db: Session = Depends(get_db),
 ):
@@ -85,7 +86,7 @@ def update_book(
     author: str | None | None,
     genre: str | None | None,
     year: int | None | None,
-    unit_price: float | None | None,
+    unit_price: Decimal | None | None,
     cover_url: str | None | None,
     db: Session = Depends(get_db),
 ):
