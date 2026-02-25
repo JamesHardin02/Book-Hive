@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import SiteNav from './SiteNav.vue'
 import BookSearch from './BookSearch.vue'
-defineProps<{
-  page: string
-}>()
+defineProps({
+  page: { type: String, required: true },
+  booksearch: { type: Boolean, default: true },
+})
 </script>
 
 <template>
@@ -17,7 +18,7 @@ defineProps<{
       />
       <h1>Book Hive - {{ page }}</h1>
     </div>
-    <BookSearch />
+    <BookSearch v-if="booksearch" />
   </header>
 </template>
 

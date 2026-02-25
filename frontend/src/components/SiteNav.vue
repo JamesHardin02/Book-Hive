@@ -6,9 +6,21 @@ import { RouterLink } from 'vue-router'
   <nav>
     <RouterLink to="/">Login</RouterLink>
     <RouterLink to="/dashboard">Dashboard</RouterLink>
+
+    <RouterLink to="/inventory">Inventory</RouterLink>
+    <RouterLink to="/inventory/add">Add Book</RouterLink>
+
+    <RouterLink to="/members">Members</RouterLink>
+    <RouterLink to="/checkout">Checkout</RouterLink>
+    <RouterLink to="/returns">Returns</RouterLink>
+
+    <RouterLink to="/sales">Sales</RouterLink>
+    <RouterLink to="/exports">Exports</RouterLink>
+
     <RouterLink to="/search">Search</RouterLink>
     <RouterLink to="/apistatus">Api Status</RouterLink>
-    <RouterLink to="/checkout">Checkout</RouterLink>
+
+    <RouterLink to="/logout">Logout</RouterLink>
   </nav>
 </template>
 
@@ -24,6 +36,7 @@ nav a {
   display: inline-block;
   padding: 0 1rem;
   border-left: 1px solid var(--color-border);
+  padding: 2px 5px;
 }
 
 nav a.router-link-exact-active {

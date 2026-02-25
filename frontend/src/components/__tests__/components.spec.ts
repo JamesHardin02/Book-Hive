@@ -40,6 +40,13 @@ describe('SiteNav', () => {
     expect(text).toContain('Search')
     expect(text).toContain('Api Status')
     expect(text).toContain('Checkout')
+    expect(text).toContain('Inventory')
+    expect(text).toContain('Add Book')
+    expect(text).toContain('Members')
+    expect(text).toContain('Returns')
+    expect(text).toContain('Sales')
+    expect(text).toContain('Exports')
+    expect(text).toContain('Logout')
   })
 })
 
