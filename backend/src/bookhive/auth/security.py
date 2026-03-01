@@ -31,9 +31,9 @@ def verify_password(password: str, hashed_password: str) -> bool:
     return pwd_context.verify(_normalize_password(password), hashed_password)
 
 
-def create_access_token(subject: str) -> str:
+def create_access_token(subject: str, scope: str = "manager") -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)  # noqa: UP017
-    payload = {"sub": subject, "exp": expire}
+    payload = {"sub": subject, "exp": expire, "scope": scope}
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 

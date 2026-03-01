@@ -18,13 +18,6 @@ export interface ValidationErrorDetail {
   ctx?: Record<string, number>
 }
 
-// An array of many items that are arranged in the above schema structure
-export interface ValidationErrorResponse {
-  detail: ValidationErrorDetail[]
-}
-
-const TOKEN_KEY = 'bookhive_token'
-
 function getApiBase(): string {
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 }
@@ -32,17 +25,10 @@ function getApiBase(): string {
 async function parseError(res: Response): Promise<string | ValidationErrorDetail[]> {
   try {
     const data = await res.json()
-
     // FastAPI validation error
-    if (Array.isArray(data?.detail)) {
-      return data.detail as ValidationErrorDetail[]
-    }
-
+    if (Array.isArray(data?.detail)) return data.detail as ValidationErrorDetail[]
     // FastAPI simple error: { detail: "message" }
-    if (typeof data?.detail === 'string') {
-      return data.detail
-    }
-
+    if (typeof data?.detail === 'string') return data.detail
     return JSON.stringify(data)
   } catch {
     return `${res.status} ${res.statusText}`
@@ -50,33 +36,19 @@ async function parseError(res: Response): Promise<string | ValidationErrorDetail
 }
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref<string | null>(null)
   const user = ref<UserPublic | null>(null)
   const initialized = ref(false)
   const loading = ref(false)
   const error = ref<ValidationErrorDetail[] | string | null>(null)
 
-  const isAuthenticated = computed(() => Boolean(token.value))
-
-  // localstorage stores token for MVP. Better to upgrade to HttpOnly cookies later
-  function setToken(newToken: string | null) {
-    token.value = newToken
-    if (newToken) localStorage.setItem(TOKEN_KEY, newToken)
-    else localStorage.removeItem(TOKEN_KEY)
-  }
+  const isAuthenticated = computed(() => user.value !== null)
 
   async function fetchMe(): Promise<void> {
-    if (!token.value) {
-      user.value = null
-      return
-    }
-
     const res = await fetch(`${getApiBase()}/auth/me`, {
-      headers: { Authorization: `Bearer ${token.value}` },
+      credentials: 'include',
     })
 
     if (!res.ok) {
-      setToken(null)
       user.value = null
       return
     }
@@ -87,12 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function init(): Promise<void> {
     if (initialized.value) return
     initialized.value = true
-
-    const saved = localStorage.getItem(TOKEN_KEY)
-    if (saved) {
-      token.value = saved
-      await fetchMe()
-    }
+    await fetchMe()
   }
 
   async function login(email: string, password: string): Promise<void> {
@@ -109,16 +76,15 @@ export const useAuthStore = defineStore('auth', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body,
+        credentials: 'include',
       })
 
       if (!res.ok) {
-        const parsed = await parseError(res)
-        error.value = parsed
+        error.value = await parseError(res)
         throw new Error('Login failed')
       }
 
-      const data = (await res.json()) as { access_token: string }
-      setToken(data.access_token)
+      // cookie is set by backend; now load user
       await fetchMe()
     } finally {
       loading.value = false
@@ -134,11 +100,11 @@ export const useAuthStore = defineStore('auth', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
+        credentials: 'include',
       })
 
       if (!res.ok) {
-        const parsed = await parseError(res)
-        error.value = parsed
+        error.value = await parseError(res)
         throw new Error('Registration failed')
       }
     } finally {
@@ -146,14 +112,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  function logout(): void {
+  async function logout(): Promise<void> {
     error.value = null
     user.value = null
-    setToken(null)
+    
+    // clear cookie server-side
+    await fetch(`${getApiBase()}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    })
   }
 
   return {
-    token,
     user,
     initialized,
     loading,

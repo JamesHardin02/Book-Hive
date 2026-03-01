@@ -152,3 +152,20 @@ See the following
 
 - `CONTRIBUTING.md` - How to branch, commit, open PRs, run checks
 - `docs/WORKFLOW.md` - sprint branching strategy and merge rules
+
+## Seed demo data
+
+From `backend/`
+
+```bash
+python scripts/seed_db.py --reset
+python scripts/seed_db.py
+```
+
+## Troublehshooting
+
+- See docs/RUNBOOK.md for common issues (DB connection, ports, CORS, auth failures)
+
+## Security note (MVP)
+
+For Sprint 1, the frontend stores the JWT access token in localStorage for simplicity. In a production deployment, prefer HttpOnly cookies or another secure session approach.
