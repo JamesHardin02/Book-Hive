@@ -165,7 +165,3 @@ python scripts/seed_db.py
 ## Troublehshooting
 
 - See docs/RUNBOOK.md for common issues (DB connection, ports, CORS, auth failures)
-
-## Security note (MVP)
-
-For Sprint 1, the frontend stores the JWT access token in localStorage for simplicity. In a production deployment, prefer HttpOnly cookies or another secure session approach.

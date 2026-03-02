@@ -135,5 +135,4 @@ pip install -r backend/requirements.txt
 
 7. Operational notes (MVP)
 
-- Tokens are stored in `localStorage` for MVP
-- In a production deployment, use HttpOnly cookies or a more secure storage strategy.
+- HttpOnly cookies used for backend management of JWT token sessions.
