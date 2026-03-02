@@ -22,7 +22,7 @@ npm run dev
 
 ```bash
 cd backend
-# Windows:
+# Windows
 backend\run-dev.cmd
 # macOS/Linux
 bash ./run-dev.sh
@@ -43,7 +43,7 @@ python scripts/seed_db.py --reset
 python scripts/seed_db.py
 ```
 
-#### Verify via MySQL CLI:
+#### Verify via MySQL CLI
 
 ```bash
 mysql -u root -p -h 127.0.0.1 -P 3307
@@ -82,8 +82,8 @@ npm run test:unit
 
 #### Symptoms
 
-- curl http://localhost:8000/health
-- /health returns { ok: false, db: "error: ..." }
+- `curl http://localhost:8000/health`
+- /health returns `{ ok: false, db: "error: ..." }`
 
 #### Fix
 
