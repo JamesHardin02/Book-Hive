@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from bookhive.auth.dependencies import get_current_user
-from bookhive.auth.schemas import Token, UserCreate, UserPublic
+from bookhive.auth.schemas import UserCreate, UserPublic
 from bookhive.services.auth_service import AuthService
 from bookhive.services.deps import get_auth_service
 from bookhive.services.errors import EmailAlreadyRegistered, InactiveUser, InvalidCredentials
@@ -32,30 +32,31 @@ def register(payload: UserCreate, svc: AuthService = Depends(get_auth_service)):
         return svc.register_user(
             username=payload.username, email=payload.email, password=payload.password
         )
-    except EmailAlreadyRegistered:
+    except EmailAlreadyRegistered as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
-        ) from exec
+        ) from exc
 
 
-@router.post("/token", response_model=Token)
+@router.post("/token")
 def login(
     response: Response,
     form: OAuth2PasswordRequestForm = Depends(),
     svc: AuthService = Depends(get_auth_service),
-) -> Token:
-    # OAuth2 form uses 'username' field; treat email as usernam
+) -> dict:
+    # OAuth2 form uses 'username' field; treat email as username
     try:
         user = svc.authenticate(email=form.username, password=form.password)
         token = svc.issue_token(user_id=user.id)
-    except InvalidCredentials:
+    except InvalidCredentials as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect credentials"
-        ) from exec
-    except InactiveUser:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User inactive") from exec
+        ) from exc
+    except InactiveUser as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User inactive") from exc
 
     response.set_cookie(COOKIE_NAME, token, **_cookie_setting())
+    return {"ok": True}
 
 
 @router.post("/logout")

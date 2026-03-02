@@ -35,10 +35,8 @@ describe('SiteNav', () => {
     })
 
     const text = wrapper.text()
-    expect(text).toContain('Login')
     expect(text).toContain('Dashboard')
     expect(text).toContain('Search')
-    expect(text).toContain('Api Status')
     expect(text).toContain('Checkout')
     expect(text).toContain('Inventory')
     expect(text).toContain('Add Book')

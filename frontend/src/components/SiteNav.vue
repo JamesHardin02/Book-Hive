@@ -4,9 +4,7 @@ import { RouterLink } from 'vue-router'
 
 <template>
   <nav>
-    <RouterLink to="/">Login</RouterLink>
     <RouterLink to="/dashboard">Dashboard</RouterLink>
-
     <RouterLink to="/inventory">Inventory</RouterLink>
     <RouterLink to="/inventory/add">Add Book</RouterLink>
 
@@ -16,9 +14,7 @@ import { RouterLink } from 'vue-router'
 
     <RouterLink to="/sales">Sales</RouterLink>
     <RouterLink to="/exports">Exports</RouterLink>
-
     <RouterLink to="/search">Search</RouterLink>
-    <RouterLink to="/apistatus">Api Status</RouterLink>
 
     <RouterLink to="/logout">Logout</RouterLink>
   </nav>
@@ -36,7 +32,7 @@ nav a {
   display: inline-block;
   padding: 0 1rem;
   border-left: 1px solid var(--color-border);
-  padding: 2px 5px;
+  padding: 15px 15px;
 }
 
 nav a.router-link-exact-active {
@@ -49,5 +45,12 @@ nav a.router-link-exact-active:hover {
 
 nav a:first-of-type {
   border: 0;
+}
+
+/* Small laptops and up */
+@media (min-width: 768px) {
+  nav a {
+    padding: 5px 10px;
+  }
 }
 </style>
