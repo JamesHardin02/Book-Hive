@@ -22,9 +22,14 @@ Steps to verify this PR locally
 
 (Optional)
 
-## Checklist
+## Definition of Done (DoD)
 
+See: `docs/DEFINITION_OF_DONE.md`
+
+- [ ] Code runs locally
 - [ ] Ran formatters (Prettier / Ruff)
 - [ ] Lint passes locally
 - [ ] Tests added/updated (if applicable)
-- [ ] Docs updated (if applicable)
+- [ ] Tests pass (`npm run test`)
+- [ ] Docs updated (README/runbook/env example) if applicable
+- [ ] No secrets committed

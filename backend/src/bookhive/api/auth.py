@@ -1,47 +1,70 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 
 from bookhive.auth.dependencies import get_current_user
-from bookhive.auth.schemas import Token, UserCreate, UserPublic
-from bookhive.auth.security import create_access_token, hash_password, verify_password
-from bookhive.db.deps import get_db
-from bookhive.db.models.user import User
+from bookhive.auth.schemas import UserCreate, UserPublic
+from bookhive.services.auth_service import AuthService
+from bookhive.services.deps import get_auth_service
+from bookhive.services.errors import EmailAlreadyRegistered, InactiveUser, InvalidCredentials
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+COOKIE_NAME = "access_token"
+
+
+def _cookie_setting() -> dict:
+    # For localhost dev, Secure must be false for http usage
+    # In prod for https usage, set BOOKHIVE_COOKIE_SECURE=true
+    secure = os.getenv("BOOKHIVE_COOKIE_SECURE", "false").lower() in ("1", "true", "yes")
+    return {
+        "httponly": True,
+        "secure": secure,
+        "samesite": "lax",
+        "path": "/",
+    }
+
 
 @router.post("/register", response_model=UserPublic, status_code=status.HTTP_201_CREATED)
-def register(payload: UserCreate, db: Session = Depends(get_db)) -> User:
-    print(payload)
-    existing = db.query(User).filter(User.email == payload.email).first()
-    if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
-
-    user = User(
-        username=payload.username,
-        email=payload.email,
-        hashed_password=hash_password(payload.password),
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
+def register(payload: UserCreate, svc: AuthService = Depends(get_auth_service)):
+    try:
+        return svc.register_user(
+            username=payload.username, email=payload.email, password=payload.password
+        )
+    except EmailAlreadyRegistered as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
+        ) from exc
 
 
-@router.post("/token", response_model=Token)
-def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Token:
-    # We treat "username" as email here
-    user = db.query(User).filter(User.email == form.username).first()
-    if not user or not verify_password(form.password, user.hashed_password):
+@router.post("/token")
+def login(
+    response: Response,
+    form: OAuth2PasswordRequestForm = Depends(),
+    svc: AuthService = Depends(get_auth_service),
+) -> dict:
+    # OAuth2 form uses 'username' field; treat email as username
+    try:
+        user = svc.authenticate(email=form.username, password=form.password)
+        token = svc.issue_token(user_id=user.id)
+    except InvalidCredentials as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect credentials"
-        )
+        ) from exc
+    except InactiveUser as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User inactive") from exc
 
-    token = create_access_token(subject=str(user.id))
-    return Token(access_token=token)
+    response.set_cookie(COOKIE_NAME, token, **_cookie_setting())
+    return {"ok": True}
+
+
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(COOKIE_NAME, path="/")
+    return {"ok": True}
 
 
 @router.get("/me", response_model=UserPublic)
-def me(current_user: User = Depends(get_current_user)) -> User:
+def me(current_user=Depends(get_current_user)):
     return current_user

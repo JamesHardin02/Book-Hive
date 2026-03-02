@@ -79,7 +79,7 @@ const router = createRouter({
     {
       path: '/logout',
       name: 'logout',
-      meta: { requireAuth: false },
+      meta: { requiresAuth: false },
       component: () => import('../views/LogoutView.vue'),
     },
     {
