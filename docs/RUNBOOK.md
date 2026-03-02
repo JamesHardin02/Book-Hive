@@ -115,7 +115,7 @@ docker compose up -d
 
 4. CORS errors in the browser console
 
-- Ensure frontend origin is included in backend CORS list (http://localhost:5173)
+- Ensure frontend origin is included in backend CORS list (`http://localhost:5173`)
 - Ensure VITE_API_BASE_URL points to the correct backend URL.
 
 5. Register fails due to email validation
