@@ -2,7 +2,9 @@ import os
 import sys
 import unittest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+)
 
 os.environ["BOOKHIVE_ENV"] = "test"
 
@@ -41,7 +43,9 @@ class UserRepoTests(unittest.TestCase):
         self.db.close()
 
     def test_create_and_get_by_email(self):
-        user = self.repo.create(username="repo", email="repo@example.com", hashed_password="hashed")
+        user = self.repo.create(
+            username="repo", email="repo@example.com", hashed_password="hashed"
+        )
         self.assertIsNotNone(user.id)
 
         fetched = self.repo.get_by_email("repo@example.com")

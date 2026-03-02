@@ -27,7 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(MetricsMiddleware,)
+app.add_middleware(
+    MetricsMiddleware,
+)
 
 app.include_router(health_router)
 app.include_router(auth_router)

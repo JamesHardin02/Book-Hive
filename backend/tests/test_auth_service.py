@@ -4,7 +4,9 @@ import unittest
 from dataclasses import dataclass
 
 # Ensure imports work when running from repo root or backend/
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+)
 
 # Ensure token settings are stable for tests
 os.environ["BOOKHIVE_ENV"] = "test"
@@ -68,28 +70,38 @@ class AuthServiceUnitTests(unittest.TestCase):
         self.svc = AuthService(self.repo)
 
     def test_register_user_success_hashes_password(self):
-        user = self.svc.register_user(username="alice", email="alice@example.com", password="Secret123!")
+        user = self.svc.register_user(
+            username="alice", email="alice@example.com", password="Secret123!"
+        )
 
         self.assertEqual(user.email, "alice@example.com")
         self.assertNotEqual(user.hashed_password, "Secret123!")
         self.assertTrue(verify_password("Secret123!", user.hashed_password))
 
     def test_register_user_duplicate_email_raises(self):
-        self.svc.register_user(username="a", email="dup@example.com", password="Secret123!")
+        self.svc.register_user(
+            username="a", email="dup@example.com", password="Secret123!"
+        )
         with self.assertRaises(EmailAlreadyRegistered):
-            self.svc.register_user(username="b", email="dup@example.com", password="Secret123!")
+            self.svc.register_user(
+                username="b", email="dup@example.com", password="Secret123!"
+            )
 
     def test_authenticate_invalid_email_raises(self):
         with self.assertRaises(InvalidCredentials):
             self.svc.authenticate(email="missing@example.com", password="pw")
 
     def test_authenticate_invalid_password_raises(self):
-        self.svc.register_user(username="bob", email="bob@example.com", password="RightPassword!")
+        self.svc.register_user(
+            username="bob", email="bob@example.com", password="RightPassword!"
+        )
         with self.assertRaises(InvalidCredentials):
             self.svc.authenticate(email="bob@example.com", password="WrongPassword!")
 
     def test_authenticate_inactive_user_raises(self):
-        user = self.svc.register_user(username="carol", email="carol@example.com", password="Secret123!")
+        user = self.svc.register_user(
+            username="carol", email="carol@example.com", password="Secret123!"
+        )
         # force inactive in fake storage
         user.is_active = False
 
@@ -97,7 +109,9 @@ class AuthServiceUnitTests(unittest.TestCase):
             self.svc.authenticate(email="carol@example.com", password="Secret123!")
 
     def test_issue_token_contains_scope_manager(self):
-        user = self.svc.register_user(username="dave", email="dave@example.com", password="Secret123!")
+        user = self.svc.register_user(
+            username="dave", email="dave@example.com", password="Secret123!"
+        )
         token = self.svc.issue_token(user_id=user.id)
 
         payload = decode_token(token)

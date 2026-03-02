@@ -115,7 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout(): Promise<void> {
     error.value = null
     user.value = null
-    
+
     // clear cookie server-side
     await fetch(`${getApiBase()}/auth/logout`, {
       method: 'POST',

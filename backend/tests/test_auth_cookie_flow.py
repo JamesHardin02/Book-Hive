@@ -6,7 +6,9 @@ import logging
 logging.getLogger("passlib.handlers.bcrypt").setLevel(logging.ERROR)
 
 # Ensure imports work when running from repo root or backend/
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+)
 
 
 from fastapi.testclient import TestClient  # noqa: E402
@@ -35,7 +37,9 @@ class AuthCookieFlowTests(unittest.TestCase):
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
-        cls.TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=cls.engine)
+        cls.TestingSessionLocal = sessionmaker(
+            autocommit=False, autoflush=False, bind=cls.engine
+        )
 
         Base.metadata.drop_all(bind=cls.engine)
         Base.metadata.create_all(bind=cls.engine)
@@ -62,7 +66,11 @@ class AuthCookieFlowTests(unittest.TestCase):
         # Register
         reg = self.client.post(
             "/auth/register",
-            json={"username": "cookieuser", "email": "cookie@example.com", "password": "secret123"},
+            json={
+                "username": "cookieuser",
+                "email": "cookie@example.com",
+                "password": "secret123",
+            },
         )
         self.assertEqual(reg.status_code, 201)
 
