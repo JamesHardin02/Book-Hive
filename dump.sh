@@ -13,7 +13,7 @@ find . -type f \
   ! -path "*/frontend/test-results/*" \
   ! -ipath "*/.venv/*" \
   ! -name "package-lock.json" \
-  ! -name ".env*" \
+  ! -name ".env" \
   ! -name "test_*.db" \
   ! -name "$OUTPUT" \
   ! -iregex ".*\.\(jpg\|jpeg\|png\|gif\|bmp\|tiff\|ico\|svg\|webp\)" \
