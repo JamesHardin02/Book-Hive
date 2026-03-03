@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import ApiStatus from '../components/ApiStatus.vue'
+import ApiStatus from '@/components/ApiStatus.vue'
+import SiteNav from '@/components/SiteNav.vue'
 </script>
 
 <template>
+  <header>
+    <SiteNav />
+  </header>
   <main style="max-width: 900px; margin: 0 auto; padding: 24px">
     <h1>BookHive</h1>
     <ApiStatus />

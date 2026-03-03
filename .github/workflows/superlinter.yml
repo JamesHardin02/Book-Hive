@@ -86,7 +86,7 @@ jobs:
 
       - name: Run Super-Linter
         # Use the official Super-Linter action repo for v8.4.0
-        uses: super-linter/super-linter@12562e48d7059cf666c43a4ecb0d3b5a2b31bd9e
+        uses: super-linter/super-linter@61abc07d755095a68f4987d1c2c3d1d64408f1f9
         env:
           # GITHUB_TOKEN is an automatically created token for each workflow run
           # Passing it enables authenticated GitHub API calls (like creating status checks).
@@ -137,6 +137,12 @@ jobs:
       - name: Ruff format (check)
         run: ruff format --check backend
 
+      - name: Unit Tests
+        env:
+          BOOKHIVE_ENV: test
+          JWT_SECRET_KEY: test-secret
+        run: python -m unittest discover -s backend/tests -p "test_*.py" -v
+
   frontend-lint:
     name: Frontend (ESLint + Prettier)
     runs-on: ubuntu-latest
@@ -160,6 +166,9 @@ jobs:
 
       - name: Format (check)
         run: npm run format:check --prefix frontend
+
+      - name: Unit tests
+        run: npm run test:unit --prefix frontend
 
       # ───────────────────────────────────────────────────────────────────────
       # FUTURE DEVELOPMENT (when real code arrives)

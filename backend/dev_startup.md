@@ -10,6 +10,16 @@
 1. Start MySQL:
    - `docker compose up -d`
 
+### (Optional) Check successful DB table creation through MySQL CLI
+
+```bash
+mysql -u root -p -h 127.0.0.1 -P 3307
+USE bookhive;
+SELECT DATABASE();
+SHOW DATABASES;
+SHOW TABLES;
+```
+
 2. Create/activate venv and install deps:
    - `cd backend`
    - `py -3.13 -m venv .venv`
@@ -25,3 +35,13 @@
 
 5. Verify:
    - `curl http://localhost:8000/health`
+
+6. (Optional) seed database with demo data:
+   - `python scripts/seed_db.py`
+   - confirm with `mysql -u root -u -h 127.0.0.1 -P 3307`
+   - `use bookhive`
+   - `show tables`
+   - `select * from user`
+   - `select * from book`
+   - `select * from loan`
+   - etc.
