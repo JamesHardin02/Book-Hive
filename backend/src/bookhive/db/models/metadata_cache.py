@@ -15,6 +15,6 @@ class Metadata_Cache(Base):
 
     fetched_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False,  # noqa: UP017
+        default=lambda: datetime.now(timezone.utc),  # noqa: UP017
+        nullable=False,
     )
