@@ -4,6 +4,7 @@ from bookhive.db.base import Base
 from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
+
 class AppSetting(Base):
     __tablename__ = "app_setting"
 
@@ -11,7 +12,7 @@ class AppSetting(Base):
     int_value: Mapped[int | None] = mapped_column(Integer, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(timezone.utc),  # noqa: UP017
+        onupdate=lambda: datetime.now(timezone.utc),  # noqa: UP017
         nullable=False,
     )
