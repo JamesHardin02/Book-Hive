@@ -26,6 +26,7 @@ from bookhive.db.models.member import Member  # noqa: E402
 from bookhive.db.models.sale import Sale  # noqa: E402
 from bookhive.db.models.stock_adjustment import Stock_Adjustment  # noqa: E402
 from bookhive.db.models.user import User  # noqa: E402
+from bookhive.db.models.app_setting import AppSetting  # noqa: E402
 
 
 def reset_db() -> None:
@@ -61,15 +62,23 @@ def seed(db: Session) -> None:
         },
     )
 
+    get_or_create(
+        db,
+        AppSetting,
+        key="low_stock_threshold",
+        defaults={"int_value": 3},
+    )
+
     # Locations
-    loc_a1, _ = get_or_create(db, Location, aisle=1, shelf=1)
-    loc_b2, _ = get_or_create(db, Location, aisle=2, shelf=2)
+    loc_a1, _ = get_or_create(db, Location, aisle="B", shelf="2")
+    loc_b2, _ = get_or_create(db, Location, aisle="E", shelf="1")
 
     # Books
     book1, _ = get_or_create(
         db,
         Book,
         isbn="9780140328721",
+        edition=1,
         defaults={
             "title": "Matilda",
             "author": "Roald Dahl",
@@ -84,6 +93,7 @@ def seed(db: Session) -> None:
         db,
         Book,
         isbn="9780061120084",
+        edition=1,
         defaults={
             "title": "To Kill a Mockingbird",
             "author": "Harper Lee",
@@ -99,15 +109,13 @@ def seed(db: Session) -> None:
         db,
         Inventory,
         book_id=book1.id,
-        location_id=loc_a1.id,
-        defaults={"on_hand": 5, "min_threshold": 2},
+        defaults={"on_hand": 5, "location_id": loc_a1.id},
     )
     get_or_create(
         db,
         Inventory,
         book_id=book2.id,
-        location_id=loc_b2.id,
-        defaults={"on_hand": 2, "min_threshold": 1},
+        defaults={"on_hand": 2, "location_id": loc_b2.id},
     )
 
     # Member
