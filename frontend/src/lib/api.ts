@@ -10,6 +10,20 @@ export class ApiError extends Error {
   }
 }
 
+export type FastApiDetail =
+  | string
+  | number
+  | boolean
+  | null
+  | FastApiDetail[]
+  | { [key: string]: FastApiDetail }
+
+export type FastApiErrorResponse = { detail: FastApiDetail }
+
+function extractMessage(detail: FastApiDetail): string {
+  return typeof detail === 'string' ? detail : JSON.stringify(detail)
+}
+
 function getApiBase(): string {
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 }
@@ -41,12 +55,14 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   }
 
   if (!res.ok) {
-    const data = await parseFastApiError(res)
-    // FastAPI commonly returns { detail: "..." } or { detail: [...] }
-    const message =
-      typeof (data as any)?.detail === 'string'
-        ? (data as any).detail
-        : `Request failed (${res.status})`
+    const data = (await parseFastApiError(res)) as FastApiErrorResponse | unknown
+
+    let message = `Request failed (${res.status})`
+
+    if (data && typeof data === 'object' && 'detail' in data) {
+      message = extractMessage((data as FastApiErrorResponse).detail)
+    }
+
     throw new ApiError(message, res.status, data)
   }
 

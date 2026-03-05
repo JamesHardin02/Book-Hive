@@ -31,14 +31,14 @@ const books = ref<BookOut[]>([])
 // Filters (1 input per column)
 const title = ref('')
 const author = ref('')
-const genre = ref('') 
+const genre = ref('')
 const year = ref<string>('') // single Year filter -> mapped to year_min/year_max
-const edition = ref('') 
+const edition = ref('')
 const isbn = ref('')
-const onHand = ref('') 
+const onHand = ref('')
 const aisle = ref('')
-const shelf = ref('') 
-const created = ref('') 
+const shelf = ref('')
+const created = ref('')
 
 // Paging
 const offset = ref(0)
@@ -201,7 +201,9 @@ onMounted(() => {
             </th>
 
             <th><input v-model="year" type="number" placeholder="Year" min="0" max="3000" /></th>
-            <th><input v-model="edition" type="number" placeholder="Edition" min="1" max="3000" /></th>
+            <th>
+              <input v-model="edition" type="number" placeholder="Edition" min="1" max="3000" />
+            </th>
             <th><input v-model="isbn" type="text" placeholder="ISBN" /></th>
             <th><input v-model="onHand" type="number" placeholder="On-Hand" min="0" /></th>
             <th><input v-model="aisle" type="text" placeholder="Aisle" /></th>
@@ -284,7 +286,7 @@ td {
   vertical-align: top;
 }
 
-th.truncate, 
+th.truncate,
 td.truncate {
   white-space: nowrap;
   overflow: hidden;

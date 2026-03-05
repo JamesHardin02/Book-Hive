@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { apiFetch, ApiError } from '@/lib/api'
 
-type Location = { aisle: string; shelf: string}
+type Location = { aisle: string; shelf: string }
 
 type LowStockItem = {
   book_id: number
