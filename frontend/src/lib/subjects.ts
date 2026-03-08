@@ -4,7 +4,7 @@ export const SUBJECT_OPTIONS = [
   'Fiction',
   'Science & Mathematics',
   'Business & Finance',
-  'Children\'s',
+  "Children's",
   'History',
   'Health & Wellness',
   'Biography',

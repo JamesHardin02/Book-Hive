@@ -246,19 +246,15 @@ async function submitForm(e: Event): Promise<void> {
         <h2>Lookup by ISBN</h2>
 
         <div class="lookup-row">
-          <input
-            v-model="isbn"
-            type="text"
-            placeholder="ISBN-10 or ISBN-13"
-            autocomplete="off"
-          />
+          <input v-model="isbn" type="text" placeholder="ISBN-10 or ISBN-13" autocomplete="off" />
           <button type="button" @click="lookupIsbn" :disabled="lookupLoading || submitting">
             {{ lookupLoading ? 'Looking up…' : 'Lookup ISBN' }}
           </button>
         </div>
 
         <p class="hint">
-          OpenLibrary can prefill title, author, year, and cover image. Subject is still chosen manually.
+          OpenLibrary can prefill title, author, year, and cover image. Subject is still chosen
+          manually.
         </p>
 
         <p v-if="lookupError" class="error">{{ lookupError }}</p>
@@ -311,8 +307,8 @@ async function submitForm(e: Event): Promise<void> {
           <label>
             Cover URL
             <input v-model="coverUrl" type="url" placeholder="Optional" />
-          </label>          
-          
+          </label>
+
           <div class="cover-preview" v-if="coverUrl">
             <img :src="coverUrl" alt="Book cover preview" />
           </div>
@@ -462,6 +458,9 @@ button:disabled {
 @media (min-width: 900px) {
   .grid {
     grid-template-columns: 1.2fr 0.8fr;
+  }
+  button {
+    max-width: 150px;
   }
 }
 </style>

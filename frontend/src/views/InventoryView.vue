@@ -354,7 +354,9 @@ onMounted(() => {
             <th><input v-model="isbnFilter" type="text" placeholder="ISBN" /></th>
             <th><input v-model="editionFilter" type="number" min="1" placeholder="Edition" /></th>
             <th><input v-model="onHandFilter" type="number" min="0" placeholder="On-Hand" /></th>
-            <th><input v-model="thresholdFilter" type="text" placeholder="Threshold / default" /></th>
+            <th>
+              <input v-model="thresholdFilter" type="text" placeholder="Threshold / default" />
+            </th>
             <th><input v-model="locationFilter" type="text" placeholder="Aisle / Shelf" /></th>
             <th>—</th>
             <th>—</th>
@@ -459,7 +461,9 @@ onMounted(() => {
           </tr>
 
           <tr v-if="!error && filteredBooks.length === 0">
-            <td colspan="11" style="text-align: center; padding: 16px">No inventory records found</td>
+            <td colspan="11" style="text-align: center; padding: 16px">
+              No inventory records found
+            </td>
           </tr>
         </tbody>
       </table>

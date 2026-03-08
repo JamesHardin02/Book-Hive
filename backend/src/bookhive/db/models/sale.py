@@ -12,7 +12,7 @@ class Sale(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     book_id: Mapped[int] = mapped_column(ForeignKey("book.id"), index=True, nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
-    member_id: Mapped[int] = mapped_column(ForeignKey("member.id"), nullable=False)
+    member_id: Mapped[int | None] = mapped_column(ForeignKey("member.id"), nullable=True)
     unit_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     sold_at: Mapped[date] = mapped_column(Date, default=date.today, nullable=False)
 

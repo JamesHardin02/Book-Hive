@@ -1,165 +1,491 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
 import PageHeader from '@/components/PageHeader.vue'
+import { apiFetch, ApiError } from '@/lib/api'
+
+type MemberOut = {
+  id: number
+  name: string
+  email: string
+  phone_number: string
+  created_at: string
+}
+
+type LocationOut = {
+  id: number
+  aisle: string
+  shelf: string
+}
+
+type InventoryOut = {
+  book_id: number
+  on_hand: number
+  min_threshold?: number | null
+  location?: LocationOut | null
+}
+
+type BookOut = {
+  id: number
+  isbn: string
+  edition: number
+  title: string
+  author: string
+  genre: string
+  year: number
+  unit_price: number | string | null
+  cover_url: string | null
+  created_at: string
+  inventory?: InventoryOut | null
+}
+
+type LoanOut = {
+  id: number
+  created_at: string
+  due_date: string
+  returned_at: string | null
+  member: {
+    id: number
+    name: string
+    email: string
+  }
+  book: {
+    id: number
+    title: string
+    isbn: string
+    edition: number
+  }
+}
+
+const memberName = ref('')
+const memberEmail = ref('')
+const bookTitle = ref('')
+const bookIsbn = ref('')
+
+const members = ref<MemberOut[]>([])
+const books = ref<BookOut[]>([])
+const loans = ref<LoanOut[]>([])
+
+const selectedMemberId = ref<number | null>(null)
+const selectedBookId = ref<number | null>(null)
+
+const dueDate = ref(defaultDueDate())
+
+const loadingMembers = ref(false)
+const loadingBooks = ref(false)
+const loadingLoans = ref(false)
+const submitting = ref(false)
+
+const error = ref<string | null>(null)
+const successMessage = ref<string | null>(null)
+
+function defaultDueDate(): string {
+  const d = new Date()
+  d.setDate(d.getDate() + 14)
+  return d.toISOString().slice(0, 10)
+}
+
+function normalizeIsbn(s: string): string {
+  return s.replace(/[^0-9]/g, '')
+}
+
+const selectedMember = computed(
+  () => members.value.find((m) => m.id === selectedMemberId.value) ?? null,
+)
+
+const selectedBook = computed(() => books.value.find((b) => b.id === selectedBookId.value) ?? null)
+
+async function searchMembers(): Promise<void> {
+  loadingMembers.value = true
+  error.value = null
+
+  try {
+    const params = new URLSearchParams()
+    if (memberName.value.trim()) params.set('name', memberName.value.trim())
+    if (memberEmail.value.trim()) params.set('email', memberEmail.value.trim())
+    params.set('offset', '0')
+    params.set('limit', '25')
+
+    members.value = await apiFetch<MemberOut[]>(`/members?${params.toString()}`)
+  } catch (e) {
+    if (e instanceof ApiError) error.value = e.message
+    else error.value = String(e)
+    members.value = []
+  } finally {
+    loadingMembers.value = false
+  }
+}
+
+async function searchBooks(): Promise<void> {
+  loadingBooks.value = true
+  error.value = null
+
+  try {
+    const params = new URLSearchParams()
+    if (bookTitle.value.trim()) params.set('title', bookTitle.value.trim())
+    if (bookIsbn.value.trim()) params.set('isbn', normalizeIsbn(bookIsbn.value.trim()))
+    params.set('offset', '0')
+    params.set('limit', '25')
+
+    books.value = await apiFetch<BookOut[]>(`/books?${params.toString()}`)
+  } catch (e) {
+    if (e instanceof ApiError) error.value = e.message
+    else error.value = String(e)
+    books.value = []
+  } finally {
+    loadingBooks.value = false
+  }
+}
+
+async function fetchActiveLoans(): Promise<void> {
+  loadingLoans.value = true
+
+  try {
+    loans.value = await apiFetch<LoanOut[]>('/loans?active_only=true&offset=0&limit=25')
+  } catch (e) {
+    if (e instanceof ApiError) error.value = e.message
+    else error.value = String(e)
+    loans.value = []
+  } finally {
+    loadingLoans.value = false
+  }
+}
+
+function selectMember(memberId: number): void {
+  selectedMemberId.value = memberId
+}
+
+function selectBook(bookId: number): void {
+  selectedBookId.value = bookId
+}
+
+async function submitCheckout(e: Event): Promise<void> {
+  e.preventDefault()
+  error.value = null
+  successMessage.value = null
+
+  if (selectedMemberId.value === null) {
+    error.value = 'Please select a member.'
+    return
+  }
+
+  if (selectedBookId.value === null) {
+    error.value = 'Please select a book.'
+    return
+  }
+
+  if (!dueDate.value) {
+    error.value = 'Please choose a due date.'
+    return
+  }
+
+  submitting.value = true
+
+  try {
+    const created = await apiFetch<LoanOut>('/loans', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        member_id: selectedMemberId.value,
+        book_id: selectedBookId.value,
+        due_date: dueDate.value,
+      }),
+    })
+
+    successMessage.value = `Checked out "${created.book.title}" to ${created.member.name}.`
+    await searchBooks()
+    await fetchActiveLoans()
+  } catch (e) {
+    if (e instanceof ApiError) error.value = e.message
+    else error.value = String(e)
+  } finally {
+    submitting.value = false
+  }
+}
+
+onMounted(() => {
+  fetchActiveLoans()
+})
 </script>
 
 <template>
-  <PageHeader page="Checkout / Record Sale" />
+  <PageHeader page="Checkout" :booksearch="false" />
 
-  <form>
-    <section>
-      <h2>Member Lookup</h2>
+  <main class="page">
+    <section class="card">
+      <h2>Find Member</h2>
 
-      <label>Enter Member Name Here:</label>
-      <input type="text" placeholder="Type member name..." />
+      <div class="toolbar">
+        <input v-model="memberName" type="text" placeholder="Member name" />
+        <input v-model="memberEmail" type="text" placeholder="Member email" />
+        <button type="button" @click="searchMembers" :disabled="loadingMembers">
+          {{ loadingMembers ? 'Searching…' : 'Search Members' }}
+        </button>
+      </div>
 
-      <label>Select Member's ID:</label>
-      <select>
-        <option value="">— Select ID —</option>
-        <option>00012</option>
-        <option>00059</option>
-      </select>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Select</th>
+            </tr>
+          </thead>
 
-      <button>Register Member</button>
-    </section>
+          <tbody>
+            <tr v-for="m in members" :key="m.id">
+              <td>{{ m.name }}</td>
+              <td>{{ m.email }}</td>
+              <td>{{ m.phone_number }}</td>
+              <td>
+                <button type="button" @click="selectMember(m.id)">
+                  {{ selectedMemberId === m.id ? 'Selected' : 'Select' }}
+                </button>
+              </td>
+            </tr>
 
-    <section>
-      <h2>Checkout / Record Sale Guide</h2>
-      <div id="guide-box">
-        <p>If more than one member has the same name, select their ID.</p>
-        <p>If only 1 ID is present it is automatically selected.</p>
-        <p>
-          If no IDs are present, for book checkout this person must be registered for membership.
-        </p>
-        <p>To record the sale of this book, membership is optional.</p>
+            <tr v-if="!loadingMembers && members.length === 0">
+              <td colspan="4" class="empty">No members loaded</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
-    <section id="book">
-      <span>BOOK COVER<br />PLACEHOLDER</span>
+    <section class="card">
+      <h2>Find Book</h2>
 
-      <article>
-        <p><strong>Title:</strong> Lorem Ipsum</p>
-        <p><strong>Author:</strong> Jane Doe</p>
-        <p><strong>ISBN:</strong> 123-3-3893-9292-2</p>
-        <p><strong>Year:</strong> Earliest – 1998; Latest – 2001</p>
-        <p><strong>Aisle:</strong> B</p>
-        <p><strong>Shelf:</strong> 2</p>
+      <div class="toolbar">
+        <input v-model="bookTitle" type="text" placeholder="Book title" />
+        <input v-model="bookIsbn" type="text" placeholder="ISBN" />
+        <button type="button" @click="searchBooks" :disabled="loadingBooks">
+          {{ loadingBooks ? 'Searching…' : 'Search Books' }}
+        </button>
+      </div>
 
-        <menu>
-          <button>Checkout</button>
-          <button>Record Sale</button>
-        </menu>
-      </article>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Subject</th>
+              <th>ISBN</th>
+              <th>On-Hand</th>
+              <th>Location</th>
+              <th>Select</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for="b in books" :key="b.id">
+              <td>{{ b.title }}</td>
+              <td>{{ b.author }}</td>
+              <td>{{ b.genre }}</td>
+              <td>{{ b.isbn }}</td>
+              <td>{{ b.inventory?.on_hand ?? 0 }}</td>
+              <td>
+                <span v-if="b.inventory?.location">
+                  {{ b.inventory.location.aisle }} / {{ b.inventory.location.shelf }}
+                </span>
+                <span v-else>—</span>
+              </td>
+              <td>
+                <button
+                  type="button"
+                  @click="selectBook(b.id)"
+                  :disabled="(b.inventory?.on_hand ?? 0) <= 0"
+                >
+                  {{ selectedBookId === b.id ? 'Selected' : 'Select' }}
+                </button>
+              </td>
+            </tr>
+
+            <tr v-if="!loadingBooks && books.length === 0">
+              <td colspan="7" class="empty">No books loaded</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
-  </form>
+
+    <p v-if="error" class="error">{{ error }}</p>
+    <p v-if="successMessage" class="success">{{ successMessage }}</p>
+
+    <section class="card">
+      <h2>Checkout Loan</h2>
+
+      <form class="checkout-form" @submit="submitCheckout">
+        <div class="selection-summary">
+          <div>
+            <strong>Selected Member:</strong>
+            <span v-if="selectedMember">
+              {{ selectedMember.name }} ({{ selectedMember.email }})
+            </span>
+            <span v-else>None selected</span>
+          </div>
+
+          <div>
+            <strong>Selected Book:</strong>
+            <span v-if="selectedBook">
+              {{ selectedBook.title }} — On-Hand:
+              {{ selectedBook.inventory?.on_hand ?? 0 }}
+            </span>
+            <span v-else>None selected</span>
+          </div>
+        </div>
+
+        <div class="submission">
+          <label>
+            Due Date
+            <input v-model="dueDate" type="date" required />
+          </label>
+
+          <button type="submit" :disabled="submitting">
+            {{ submitting ? 'Checking Out…' : 'Create Checkout' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Active Loans</h2>
+
+      <p v-if="loadingLoans">Loading active loans…</p>
+
+      <div class="table-wrap" v-else>
+        <table>
+          <thead>
+            <tr>
+              <th>Book</th>
+              <th>Member</th>
+              <th>Due Date</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for="loan in loans" :key="loan.id">
+              <td>{{ loan.book.title }}</td>
+              <td>{{ loan.member.name }}</td>
+              <td>{{ loan.due_date }}</td>
+              <td>{{ loan.created_at }}</td>
+            </tr>
+
+            <tr v-if="loans.length === 0">
+              <td colspan="4" class="empty">No active loans</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 </template>
 
 <style scoped>
-form {
-  margin: 40px auto;
+.page {
   padding: 24px;
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-section {
-  padding: 20px;
+.card {
+  border: 1px solid #8080805f;
+  border-radius: 10px;
+  padding: 16px;
   background: var(--color-background);
-  border: 1px solid var(--color-border);
+}
+
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.selection-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.toolbar input,
+.checkout-form input {
+  padding: 8px;
+  border: 1px solid #8080805f;
   border-radius: 6px;
 }
 
-h2 {
-  margin-bottom: 12px;
-  color: var(--color-heading);
-}
-
-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: var(--color-text);
-}
-
-input,
-select {
+.table-wrap {
   width: 100%;
-  padding: 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background: var(--color-background-soft);
-  color: var(--color-text);
-  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  min-width: 900px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #8080805f;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
 }
 
 button {
-  padding: 10px 16px;
+  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--vt-c-indigo);
   color: white;
   cursor: pointer;
-  transition: background 0.2s;
 }
 
-button:hover {
-  background: #1f2d3a;
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-span {
-  width: 140px;
-  height: 200px;
-  background: var(--color-background-mute);
-  border: 1px solid var(--color-border);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 12px;
+.error {
+  color: #c00;
+}
+
+.success {
+  color: #0a7a2f;
+}
+
+.empty {
   text-align: center;
-  padding: 8px;
+  padding: 16px;
 }
 
-article p {
-  margin-bottom: 6px;
-}
-
-menu {
-  margin-top: 20px;
-  display: flex;
-  gap: 12px;
-  padding: 0px;
-}
-
-#guide-box {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--color-text);
-}
-
-/* Tablets and higher */
-@media (min-width: 460px) {
-  #book {
+@media (min-width: 430px) {
+  .submission {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    gap: 8px;
+  }
+
+  .submission > button,
+  .toolbar > button {
+    max-width: 150px;
   }
 }
 
-/* Tablets and higher */
 @media (min-width: 768px) {
-  form {
-    max-width: 1100px;
-    display: grid;
-  }
-
-  #book {
-    grid-column: span 2;
-    flex-direction: row;
-    gap: 20px;
-    justify-content: flex-start;
+  .toolbar {
+    flex-wrap: nowrap;
   }
 }
 </style>
