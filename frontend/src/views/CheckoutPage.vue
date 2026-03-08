@@ -3,7 +3,7 @@ import PageHeader from '@/components/PageHeader.vue'
 </script>
 
 <template>
-  <PageHeader page="Checkout / Record Sale" :booksearch="false" />
+  <PageHeader page="Checkout / Record Sale" />
 
   <form>
     <section>

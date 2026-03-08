@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { apiFetch, ApiError } from '@/lib/api'
+import { SUBJECT_OPTIONS } from '@/lib/subjects'
 
 type LocationOut = { id: number; aisle: string; shelf: string }
 type InventoryOut = {
@@ -31,7 +32,7 @@ const books = ref<BookOut[]>([])
 // Filters (1 input per column)
 const title = ref('')
 const author = ref('')
-const genre = ref('')
+const subject = ref('')
 const year = ref<string>('') // single Year filter -> mapped to year_min/year_max
 const edition = ref('')
 const isbn = ref('')
@@ -60,7 +61,7 @@ function buildQuery(): string {
 
   if (title.value.trim()) params.set('title', title.value.trim())
   if (author.value.trim()) params.set('author', author.value.trim())
-  if (genre.value.trim()) params.set('genre', genre.value.trim())
+  if (subject.value.trim()) params.set('genre', subject.value.trim())
   if (isbn.value.trim()) params.set('isbn', normalizeIsbn(isbn.value.trim()))
 
   // single Year box, but backend uses year_min/year_max.
@@ -95,7 +96,7 @@ async function fetchBooks(): Promise<void> {
 function clearFilters(): void {
   title.value = ''
   author.value = ''
-  genre.value = ''
+  subject.value = ''
   year.value = ''
   edition.value = ''
   isbn.value = ''
@@ -106,15 +107,6 @@ function clearFilters(): void {
   offset.value = 0
   fetchBooks()
 }
-
-// Dropdown options from currently loaded page
-const genreOptions = computed(() => {
-  const set = new Set<string>()
-  for (const b of books.value) {
-    if (b.genre) set.add(b.genre)
-  }
-  return Array.from(set).sort((a, b) => a.localeCompare(b))
-})
 
 const filteredBooks = computed(() => {
   const ed = toIntOrNull(edition.value)
@@ -175,8 +167,10 @@ onMounted(() => {
   <main style="padding: 24px">
     <form @submit="onSubmit">
       <div class="toolbar">
-        <button type="submit" :disabled="loading">Search</button>
-        <button type="button" @click="clearFilters" :disabled="loading">Clear</button>
+        <div class="submission">
+          <button type="submit" :disabled="loading">Search</button>
+          <button type="button" @click="clearFilters" :disabled="loading">Clear</button>
+        </div>
 
         <div class="pager">
           <button type="button" @click="prevPage" :disabled="loading || offset === 0">Prev</button>
@@ -187,71 +181,73 @@ onMounted(() => {
       <p v-if="loading">Loading…</p>
       <p v-else-if="error" style="color: #c00">Error: {{ error }}</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th><input v-model="title" type="text" placeholder="Title" /></th>
-            <th><input v-model="author" type="text" placeholder="Author" /></th>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input v-model="title" type="text" placeholder="Title" /></th>
+              <th><input v-model="author" type="text" placeholder="Author" /></th>
 
-            <th>
-              <select v-model="genre">
-                <option value="">All genres</option>
-                <option v-for="g in genreOptions" :key="g" :value="g">{{ g }}</option>
-              </select>
-            </th>
+              <th>
+                <select v-model="subject">
+                  <option value="">All genres</option>
+                  <option v-for="s in SUBJECT_OPTIONS" :key="s" :value="s">{{ s }}</option>
+                </select>
+              </th>
 
-            <th><input v-model="year" type="number" placeholder="Year" min="0" max="3000" /></th>
-            <th>
-              <input v-model="edition" type="number" placeholder="Edition" min="1" max="3000" />
-            </th>
-            <th><input v-model="isbn" type="text" placeholder="ISBN" /></th>
-            <th><input v-model="onHand" type="number" placeholder="On-Hand" min="0" /></th>
-            <th><input v-model="aisle" type="text" placeholder="Aisle" /></th>
-            <th><input v-model="shelf" type="text" placeholder="Shelf" /></th>
-            <th><input v-model="created" type="text" placeholder="Created (YYYY-MM-DD)" /></th>
-          </tr>
+              <th><input v-model="year" type="number" placeholder="Year" min="0" max="3000" /></th>
+              <th>
+                <input v-model="edition" type="number" placeholder="Edition" min="1" max="3000" />
+              </th>
+              <th><input v-model="isbn" type="text" placeholder="ISBN" /></th>
+              <th><input v-model="onHand" type="number" placeholder="On-Hand" min="0" /></th>
+              <th><input v-model="aisle" type="text" placeholder="Aisle" /></th>
+              <th><input v-model="shelf" type="text" placeholder="Shelf" /></th>
+              <th><input v-model="created" type="text" placeholder="Created (YYYY-MM-DD)" /></th>
+            </tr>
 
-          <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Genre</th>
-            <th>Year</th>
-            <th>Edition</th>
-            <th>ISBN</th>
-            <th>On-Hand</th>
-            <th class="truncate">Location</th>
-            <th class="truncate">Threshold</th>
-            <th>Created</th>
-          </tr>
-        </thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Subject</th>
+              <th>Year</th>
+              <th>Edition</th>
+              <th>ISBN</th>
+              <th>On-Hand</th>
+              <th class="truncate">Location</th>
+              <th class="truncate">Threshold</th>
+              <th>Created</th>
+            </tr>
+          </thead>
 
-        <tbody>
-          <tr v-for="b in filteredBooks" :key="b.id">
-            <td class="truncate" :title="b.title">{{ b.title }}</td>
-            <td class="truncate" :title="b.author">{{ b.author }}</td>
-            <td>{{ b.genre }}</td>
-            <td>{{ b.year }}</td>
-            <td>{{ b.edition }}</td>
-            <td class="truncate" :title="b.isbn">{{ b.isbn }}</td>
+          <tbody>
+            <tr v-for="b in filteredBooks" :key="b.id">
+              <td class="truncate" :title="b.title">{{ b.title }}</td>
+              <td class="truncate" :title="b.author">{{ b.author }}</td>
+              <td>{{ b.genre }}</td>
+              <td>{{ b.year }}</td>
+              <td>{{ b.edition }}</td>
+              <td class="truncate" :title="b.isbn">{{ b.isbn }}</td>
 
-            <td>{{ b.inventory?.on_hand ?? '—' }}</td>
+              <td>{{ b.inventory?.on_hand ?? '—' }}</td>
 
-            <td>
-              <span v-if="b.inventory?.location">
-                {{ b.inventory.location.aisle }} / {{ b.inventory.location.shelf }}
-              </span>
-              <span v-else>—</span>
-            </td>
+              <td>
+                <span v-if="b.inventory?.location">
+                  {{ b.inventory.location.aisle }} / {{ b.inventory.location.shelf }}
+                </span>
+                <span v-else>—</span>
+              </td>
 
-            <td>{{ b.inventory?.min_threshold ?? 'default' }}</td>
-            <td>{{ b.created_at }}</td>
-          </tr>
+              <td>{{ b.inventory?.min_threshold ?? 'default' }}</td>
+              <td>{{ b.created_at }}</td>
+            </tr>
 
-          <tr v-if="!loading && !error && filteredBooks.length === 0">
-            <td colspan="10" style="text-align: center; padding: 16px">No results</td>
-          </tr>
-        </tbody>
-      </table>
+            <tr v-if="!loading && !error && filteredBooks.length === 0">
+              <td colspan="10" style="text-align: center; padding: 16px">No results</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </form>
   </main>
 </template>
@@ -265,6 +261,12 @@ onMounted(() => {
   flex-wrap: wrap;
 }
 
+.submission {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
 .pager {
   margin-left: auto;
   display: flex;
@@ -272,8 +274,14 @@ onMounted(() => {
   align-items: center;
 }
 
-table {
+.table-wrap {
   width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* smooth iOS scroll */
+}
+
+table {
+  min-width: 900px;
   border-collapse: collapse;
   table-layout: fixed;
 }
