@@ -93,7 +93,12 @@ function exportSales(): void {
     <section class="card">
       <h2>Members Export</h2>
       <p>Download all registered members with contact information.</p>
-      <button type="button" @click="exportMembers" :disabled="loadingKey === 'members'">
+      <button
+        id="members-btn"
+        type="button"
+        @click="exportMembers"
+        :disabled="loadingKey === 'members'"
+      >
         {{ loadingKey === 'members' ? 'Downloading…' : 'Download Members CSV' }}
       </button>
     </section>
@@ -115,7 +120,7 @@ function exportSales(): void {
     <section class="card">
       <h2>Sales Export</h2>
       <p>Download manual sales records including quantity, unit price, and line totals.</p>
-      <button type="button" @click="exportSales" :disabled="loadingKey === 'sales'">
+      <button id="sales-btn" type="button" @click="exportSales" :disabled="loadingKey === 'sales'">
         {{ loadingKey === 'sales' ? 'Downloading…' : 'Download Sales CSV' }}
       </button>
     </section>
@@ -177,6 +182,28 @@ button:disabled {
 @media (min-width: 900px) {
   .page {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  #sales-btn {
+    margin-top: 35px;
+  }
+}
+
+@media (min-width: 995px) {
+  #sales-btn {
+    margin-top: 12px;
+  }
+}
+
+@media (min-width: 983px) {
+  #members-btn {
+    margin-top: 23px;
+  }
+}
+
+@media (min-width: 1210px) {
+  #sales-btn {
+    margin-top: 35px;
   }
 }
 </style>
