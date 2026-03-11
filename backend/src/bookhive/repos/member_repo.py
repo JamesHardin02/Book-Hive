@@ -1,6 +1,6 @@
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
-from book.db.models.member import Member
+from bookhive.db.models.member import Member
 
 class MemberRepo:
     def __init__(self, db: Session):
