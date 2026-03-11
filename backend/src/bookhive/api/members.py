@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 
 from bookhive.auth.dependencies import get_current_user
 from bookhive.db.models.user import User
-from bookhive.schemas.members import MemberCreate, MemberOut, MemberUpdate, MemberSearchResult
-from bookhive.services.members_service import MemberService
+from bookhive.schemas.members import MemberCreate, MemberOut, MemberSearchResult, MemberUpdate
 from bookhive.services.deps import get_member_service
+from bookhive.services.member_service import MemberService
 
 router = APIRouter(prefix="/members", tags=["members"])
+
 
 @router.post("/", response_model=MemberOut, status_code=201)
 def create_member(
@@ -21,14 +22,26 @@ def create_member(
     )
     return MemberOut.model_validate(member)
 
+
+@router.get("/", response_model=MemberOut)
+def get_members(
+    svc: MemberService = Depends(get_member_service),
+    _: User = Depends(get_current_user),
+):
+    print("Hit /members GET")
+    member = svc.get_members()
+    return MemberOut.model_validate(member)
+
+
 @router.get("/{member_id}", response_model=MemberOut)
 def get_member(
     member_id: int,
-    svc: MemberService = Depends(get_member_service)
+    svc: MemberService = Depends(get_member_service),
     _: User = Depends(get_current_user),
 ):
     member = svc.get_member(member_id)
     return MemberOut.model_validate(member)
+
 
 @router.patch("/{member_id}", response_model=MemberOut)
 def update_member(
@@ -42,6 +55,7 @@ def update_member(
         **payload.model_dump(exclude_unset=True),
     )
     return MemberOut.model_validate(member)
+
 
 @router.get("/search", response_model=MemberSearchResult)
 def search_members(

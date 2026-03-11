@@ -1,11 +1,11 @@
-from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
-
 from bookhive.db.models.member import Member
 from bookhive.repos.member_repo import MemberRepo
+from fastapi import HTTPException, status
+
 
 def _normalize_phone(phone: str) -> str:
-    return " ".join(ch for ch in s if ch.isdigit())
+    return " ".join(ch for ch in phone if ch.isdigit())
+
 
 class MemberService:
     def __init__(self, member_repo: MemberRepo):
@@ -35,6 +35,16 @@ class MemberService:
         )
 
         return self.member_repo.create(member)
+
+    def get_members(self) -> Member:
+        member = self.member_repo.get_all()
+        print("Hit member service. Here is member: ", member)
+        if not member:
+            raise HTTPException(
+                status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                detail="Members not found",
+            )
+        return member
 
     def get_member(self, *, member_id: int) -> Member:
         member = self.member_repo.get_by_id(member_id)
@@ -96,6 +106,3 @@ class MemberService:
 
     def count_members(self, *, q: str) -> int:
         return self.member_repo.count(q)
-
-    
-     

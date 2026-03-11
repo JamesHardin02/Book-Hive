@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import PageHeader from '@/components/PageHeader.vue'
+import { apiFetch, ApiError } from '@/lib/api'
 
 // Local-only UI: selection + inline edit; no backend calls here
 type MemberRow = { id: number; name?: string; email?: string; phone_number?: string; created_at?: string }
@@ -11,7 +12,9 @@ const placeholderCount = 7
 
 const filtered = computed(() => {
   const q = search.value.trim().toLowerCase()
+  console.log("Line 14: Check Q pre-condition", "q:", q ,"members.value:", members.value)
   if (!q) return members.value
+  console.log("Line 16: Check Q post-condition:", q)
   return members.value.filter((m) => (m.name || '').toLowerCase().includes(q) || (m.email || '').toLowerCase().includes(q))
 })
 
@@ -62,6 +65,29 @@ function deleteMember() {
   selectedId.value = null
   editingId.value = null
 }
+
+const loading = ref(true)
+const error = ref<string | null>(null)
+const data = ref<MemberRow | null>(null)
+
+onMounted(async () => {
+  loading.value = true
+  error.value = null
+
+  try {
+    data.value = await apiFetch<MemberRow>('/members')
+  } catch (e) {
+    if (e instanceof ApiError) {
+      error.value = e.message
+      console.log(error.value)
+    } else {
+      error.value = String(e)
+      console.log(error.value)
+    }
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <template>
@@ -72,7 +98,7 @@ function deleteMember() {
         <h2>Members</h2>
 
         <div class="header-actions">
-          <button class="primary">+ Add Member</button>
+          <button type="button" class="primary">+ Add Member</button>
           <div class="action-controls">
             <button v-if="selectedId && !editingId" @click="startEdit">Edit Member</button>
             <button v-if="selectedId && !editingId" @click="deleteMember">Delete Member</button>
