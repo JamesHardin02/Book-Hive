@@ -21,7 +21,7 @@ class Book(Base):
     created_at: Mapped[date] = mapped_column(Date, default=date.today, nullable=False)
 
     # relationships used with mapped function rather than assigning to variable?
-    inventory = relationship("Inventory", back_populates="book")
+    inventory = relationship("Inventory", back_populates="book", uselist=False)
     stock_adjustments = relationship("Stock_Adjustment", back_populates="book")
     sales = relationship("Sale", back_populates="book")
     loans = relationship("Loan", back_populates="book")

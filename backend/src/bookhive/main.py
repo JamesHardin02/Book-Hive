@@ -5,7 +5,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from bookhive.api.admin import router as admin_router
 from bookhive.api.auth import router as auth_router
+from bookhive.api.books import router as books_router
+from bookhive.api.dashboard import router as dashboard_router
+from bookhive.api.exports import router as exports_router
 from bookhive.api.health import router as health_router
+from bookhive.api.loans import router as loans_router
+from bookhive.api.locations import router as locations_router
+from bookhive.api.members import router as members_router
+from bookhive.api.sales import router as sales_router
+from bookhive.api.settings import router as settings_router
 from bookhive.db.init_db import init_db
 from bookhive.observability.metrics import MetricsMiddleware
 from bookhive.observability.metrics import router as metrics_router
@@ -35,6 +43,14 @@ app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(metrics_router)
+app.include_router(books_router)
+app.include_router(locations_router)
+app.include_router(settings_router)
+app.include_router(dashboard_router)
+app.include_router(members_router)
+app.include_router(loans_router)
+app.include_router(sales_router)
+app.include_router(exports_router)
 
 
 @app.on_event("startup")
