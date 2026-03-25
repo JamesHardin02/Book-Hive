@@ -75,11 +75,9 @@ function exportSales(): void {
 
 <template>
   <PageHeader page="Exports" :booksearch="false" />
-
+  <p v-if="error" class="error">{{ error }}</p>
+  <p v-if="successMessage" class="success">{{ successMessage }}</p>
   <main class="page">
-    <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="successMessage" class="success">{{ successMessage }}</p>
-
     <section class="card">
       <h2>Books Export</h2>
       <p>
