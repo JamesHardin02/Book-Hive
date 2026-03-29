@@ -67,14 +67,24 @@ class LoanService:
         *,
         active_only: bool,
         overdue_only: bool,
+        due_soon_only: bool,
+        due_within_days: int,
         member_id: int | None,
         book_id: int | None,
         offset: int,
         limit: int,
     ) -> list[Loan]:
+        if overdue_only and due_soon_only:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Choose either overdue_only or due_soon_only, not both",
+            )
+
         return self.loan_repo.list_search(
             active_only=active_only,
             overdue_only=overdue_only,
+            due_soon_only=due_soon_only,
+            due_within_days=due_within_days,
             member_id=member_id,
             book_id=book_id,
             offset=offset,

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query
 
 from bookhive.auth.dependencies import get_current_user
 from bookhive.db.models.user import User
-from bookhive.schemas.loans import LoanCreate, LoanOut
+from bookhive.schemas.loans import DUE_SOON_DAYS, LoanCreate, LoanOut
 from bookhive.services.deps import get_loan_service
 from bookhive.services.loan_service import LoanService
 
@@ -26,6 +26,8 @@ def create_loan(
 def list_loans(
     active_only: bool = True,
     overdue_only: bool = False,
+    due_soon_only: bool = False,
+    due_within_days: int = Query(DUE_SOON_DAYS, ge=1, le=365),
     member_id: int | None = None,
     book_id: int | None = None,
     offset: int = Query(0, ge=0),
@@ -36,6 +38,8 @@ def list_loans(
     return svc.list_loans(
         active_only=active_only,
         overdue_only=overdue_only,
+        due_soon_only=due_soon_only,
+        due_within_days=due_within_days,
         member_id=member_id,
         book_id=book_id,
         offset=offset,
