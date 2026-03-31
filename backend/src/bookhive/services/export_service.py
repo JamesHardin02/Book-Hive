@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+from datetime import date, timedelta
 from decimal import Decimal
 from io import StringIO
 
@@ -23,6 +24,24 @@ def _new_csv_buffer() -> tuple[StringIO, csv.writer]:
 
 def _money(value: Decimal | None) -> str:
     return "" if value is None else str(value)
+
+
+def _loan_status(loan: Loan, due_soon_days: int = 7) -> str:
+    today = date.today()
+
+    if loan.returned_at is not None:
+        return "returned"
+    if loan.due_date < today:
+        return "overdue"
+    if loan.due_date <= today + timedelta(days=due_soon_days):
+        return "due_soon"
+    return "active"
+
+
+def _days_until_due(loan: Loan) -> str:
+    if loan.returned_at is not None:
+        return ""
+    return str((loan.due_date - date.today()).days)
 
 
 class ExportService:
@@ -125,13 +144,14 @@ class ExportService:
                 "due_date",
                 "returned_at",
                 "status",
+                "days_until_due",
             ]
         )
 
         query = (
             self.db.query(Loan)
             .options(joinedload(Loan.book), joinedload(Loan.member))
-            .order_by(Loan.created_at.desc(), Loan.id.desc())
+            .order_by(Loan.due_date.asc(), Loan.id.desc())
         )
 
         if active_only:
@@ -153,7 +173,8 @@ class ExportService:
                     loan.created_at.isoformat(),
                     loan.due_date.isoformat(),
                     "" if loan.returned_at is None else loan.returned_at.isoformat(),
-                    "active" if loan.returned_at is None else "returned",
+                    _loan_status(loan),
+                    _days_until_due(loan),
                 ]
             )
 

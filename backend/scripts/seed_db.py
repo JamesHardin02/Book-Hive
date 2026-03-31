@@ -100,7 +100,9 @@ def seed_locations(db: Session) -> dict[str, Location]:
     return locations
 
 
-def seed_books_and_inventory(db: Session, locations: dict[str, Location]) -> dict[str, Book]:
+def seed_books_and_inventory(
+    db: Session, locations: dict[str, Location]
+) -> dict[str, Book]:
     """
     Returns a dict keyed by '<isbn>|<edition>' for easy lookups later.
     """
@@ -396,7 +398,7 @@ def seed_books_and_inventory(db: Session, locations: dict[str, Location]) -> dic
             },
         )
 
-        book_index[f'{item["isbn"]}|{item["edition"]}'] = book
+        book_index[f"{item['isbn']}|{item['edition']}"] = book
 
     return book_index
 
@@ -406,15 +408,60 @@ def seed_members(db: Session) -> dict[str, Member]:
 
     member_specs = [
         ("john.doe@example.com", "John Doe", "555-0001", today - timedelta(days=220)),
-        ("maya.patel@example.com", "Maya Patel", "555-0002", today - timedelta(days=205)),
-        ("liam.carter@example.com", "Liam Carter", "555-0003", today - timedelta(days=180)),
-        ("olivia.reed@example.com", "Olivia Reed", "555-0004", today - timedelta(days=165)),
-        ("ethan.price@example.com", "Ethan Price", "555-0005", today - timedelta(days=140)),
-        ("ava.morris@example.com", "Ava Morris", "555-0006", today - timedelta(days=120)),
-        ("noah.turner@example.com", "Noah Turner", "555-0007", today - timedelta(days=90)),
-        ("sofia.gray@example.com", "Sofia Gray", "555-0008", today - timedelta(days=75)),
-        ("elijah.wilson@example.com", "Elijah Wilson", "555-0009", today - timedelta(days=50)),
-        ("isabella.king@example.com", "Isabella King", "555-0010", today - timedelta(days=30)),
+        (
+            "maya.patel@example.com",
+            "Maya Patel",
+            "555-0002",
+            today - timedelta(days=205),
+        ),
+        (
+            "liam.carter@example.com",
+            "Liam Carter",
+            "555-0003",
+            today - timedelta(days=180),
+        ),
+        (
+            "olivia.reed@example.com",
+            "Olivia Reed",
+            "555-0004",
+            today - timedelta(days=165),
+        ),
+        (
+            "ethan.price@example.com",
+            "Ethan Price",
+            "555-0005",
+            today - timedelta(days=140),
+        ),
+        (
+            "ava.morris@example.com",
+            "Ava Morris",
+            "555-0006",
+            today - timedelta(days=120),
+        ),
+        (
+            "noah.turner@example.com",
+            "Noah Turner",
+            "555-0007",
+            today - timedelta(days=90),
+        ),
+        (
+            "sofia.gray@example.com",
+            "Sofia Gray",
+            "555-0008",
+            today - timedelta(days=75),
+        ),
+        (
+            "elijah.wilson@example.com",
+            "Elijah Wilson",
+            "555-0009",
+            today - timedelta(days=50),
+        ),
+        (
+            "isabella.king@example.com",
+            "Isabella King",
+            "555-0010",
+            today - timedelta(days=30),
+        ),
     ]
 
     member_index: dict[str, Member] = {}
@@ -577,21 +624,69 @@ def seed_sales(db: Session, books: dict[str, Book], members: dict[str, Member]) 
     today = date.today()
 
     sales_specs = [
-        ("9780061120084|1", "john.doe@example.com", 1, "10.99", today - timedelta(days=180)),
+        (
+            "9780061120084|1",
+            "john.doe@example.com",
+            1,
+            "10.99",
+            today - timedelta(days=180),
+        ),
         ("9780743273565|1", None, 2, "10.49", today - timedelta(days=165)),
-        ("9780735211292|1", "maya.patel@example.com", 1, "17.99", today - timedelta(days=150)),
+        (
+            "9780735211292|1",
+            "maya.patel@example.com",
+            1,
+            "17.99",
+            today - timedelta(days=150),
+        ),
         ("9780201616224|1", None, 1, "29.99", today - timedelta(days=145)),
-        ("9780132350884|1", "liam.carter@example.com", 1, "31.99", today - timedelta(days=130)),
+        (
+            "9780132350884|1",
+            "liam.carter@example.com",
+            1,
+            "31.99",
+            today - timedelta(days=130),
+        ),
         ("9780375842207|1", None, 3, "12.49", today - timedelta(days=118)),
-        ("9780062315004|1", "olivia.reed@example.com", 2, "12.99", today - timedelta(days=95)),
+        (
+            "9780062315004|1",
+            "olivia.reed@example.com",
+            2,
+            "12.99",
+            today - timedelta(days=95),
+        ),
         ("9780399590504|1", None, 1, "16.99", today - timedelta(days=82)),
-        ("9780451524935|1", "ethan.price@example.com", 1, "9.99", today - timedelta(days=70)),
+        (
+            "9780451524935|1",
+            "ethan.price@example.com",
+            1,
+            "9.99",
+            today - timedelta(days=70),
+        ),
         ("9780553380163|1", None, 1, "15.99", today - timedelta(days=58)),
-        ("9780590353427|1", "ava.morris@example.com", 2, "10.99", today - timedelta(days=45)),
+        (
+            "9780590353427|1",
+            "ava.morris@example.com",
+            2,
+            "10.99",
+            today - timedelta(days=45),
+        ),
         ("9780140328721|1", None, 1, "8.99", today - timedelta(days=30)),
-        ("9781501124020|1", "noah.turner@example.com", 1, "13.99", today - timedelta(days=14)),
+        (
+            "9781501124020|1",
+            "noah.turner@example.com",
+            1,
+            "13.99",
+            today - timedelta(days=14),
+        ),
         ("9780441172719|1", None, 1, "14.99", today - timedelta(days=7)),
-        ("9780062316094|1", "sofia.gray@example.com", 1, "18.99", today - timedelta(days=2)),
+        (
+            "9780062316094|1",
+            "sofia.gray@example.com",
+            1,
+            "18.99",
+            today - timedelta(days=2),
+        ),
     ]
 
     for book_key, member_email, quantity, unit_price, sold_at in sales_specs:
@@ -630,14 +725,24 @@ def seed_stock_adjustments(
         ("9780201616224|1", 4, "Initial catalog load", today - timedelta(days=220)),
         ("9780132350884|1", 4, "Initial catalog load", today - timedelta(days=220)),
         ("9780590353427|1", 10, "Initial catalog load", today - timedelta(days=220)),
-        ("9780590353427|2", 2, "Added second edition for demo", today - timedelta(days=120)),
+        (
+            "9780590353427|2",
+            2,
+            "Added second edition for demo",
+            today - timedelta(days=120),
+        ),
         ("9780441172719|1", 3, "Received restock", today - timedelta(days=60)),
         ("9780441172719|1", -2, "Damaged copies removed", today - timedelta(days=20)),
         ("9780735211292|1", 2, "Small restock", today - timedelta(days=35)),
         ("9780735211292|1", -1, "Shelf count correction", today - timedelta(days=5)),
         ("9781501124020|1", 4, "New title received", today - timedelta(days=25)),
         ("9781501124020|1", -2, "Weekend sale correction", today - timedelta(days=12)),
-        ("9780394800011|1", -3, "Promotional clearance and damaged copy removal", today - timedelta(days=15)),
+        (
+            "9780394800011|1",
+            -3,
+            "Promotional clearance and damaged copy removal",
+            today - timedelta(days=15),
+        ),
         ("9780062316094|1", -1, "Lost copy write-off", today - timedelta(days=8)),
     ]
 
@@ -707,7 +812,7 @@ def seed(db: Session) -> None:
     returned_count = db.query(Loan).filter(Loan.returned_at.is_not(None)).count()
 
     print("Seed completed.")
-    print(f"Manager login: manager@example.com / manager123")
+    print("Manager login: manager@example.com / manager123")
     print(f"Books: {db.query(Book).count()}")
     print(f"Members: {db.query(Member).count()}")
     print(f"Locations: {db.query(Location).count()}")

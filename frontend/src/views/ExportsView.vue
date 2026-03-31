@@ -63,7 +63,6 @@ function exportMembers(): void {
 
 function exportLoans(): void {
   const path = activeLoansOnly.value ? '/exports/loans.csv?active_only=true' : '/exports/loans.csv'
-
   const filename = activeLoansOnly.value ? 'loans_active.csv' : 'loans.csv'
   void downloadCsv(path, filename, 'loans')
 }
@@ -74,12 +73,11 @@ function exportSales(): void {
 </script>
 
 <template>
-  <PageHeader page="Exports" :booksearch="false" />
+  <PageHeader page="Exports" />
+  <p v-if="error" class="error">{{ error }}</p>
+  <p v-if="successMessage" class="success">{{ successMessage }}</p>
 
   <main class="page">
-    <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="successMessage" class="success">{{ successMessage }}</p>
-
     <section class="card">
       <h2>Books Export</h2>
       <p>
@@ -105,7 +103,11 @@ function exportSales(): void {
 
     <section class="card">
       <h2>Loans Export</h2>
-      <p>Download circulation records for reporting and audit review.</p>
+      <p>
+        Download circulation records for reporting and review. Loan CSV now includes derived status
+        values that match the Returns page: <strong>active</strong>, <strong>due_soon</strong>,
+        <strong>overdue</strong>, and <strong>returned</strong>.
+      </p>
 
       <label class="checkbox">
         <input v-model="activeLoansOnly" type="checkbox" />
@@ -173,37 +175,17 @@ button:disabled {
 
 .error {
   color: #c00;
+  padding: 0 24px;
 }
 
 .success {
   color: #0a7a2f;
+  padding: 0 24px;
 }
 
 @media (min-width: 900px) {
   .page {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  #sales-btn {
-    margin-top: 35px;
-  }
-}
-
-@media (min-width: 995px) {
-  #sales-btn {
-    margin-top: 12px;
-  }
-}
-
-@media (min-width: 983px) {
-  #members-btn {
-    margin-top: 23px;
-  }
-}
-
-@media (min-width: 1210px) {
-  #sales-btn {
-    margin-top: 35px;
+    grid-template-columns: 1fr 1fr;
   }
 }
 </style>
