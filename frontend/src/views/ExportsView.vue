@@ -103,9 +103,7 @@ function exportSales(): void {
 
     <section class="card">
       <h2>Loans Export</h2>
-      <p>
-        Download circulation records for reporting and audit review.
-      </p>
+      <p>Download circulation records for reporting and audit review.</p>
 
       <label class="checkbox">
         <input v-model="activeLoansOnly" type="checkbox" />
@@ -209,4 +207,3 @@ button:disabled {
   }
 }
 </style>
-
