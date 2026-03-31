@@ -63,7 +63,6 @@ function exportMembers(): void {
 
 function exportLoans(): void {
   const path = activeLoansOnly.value ? '/exports/loans.csv?active_only=true' : '/exports/loans.csv'
-
   const filename = activeLoansOnly.value ? 'loans_active.csv' : 'loans.csv'
   void downloadCsv(path, filename, 'loans')
 }
@@ -74,9 +73,10 @@ function exportSales(): void {
 </script>
 
 <template>
-  <PageHeader page="Exports" :booksearch="false" />
+  <PageHeader page="Exports" />
   <p v-if="error" class="error">{{ error }}</p>
   <p v-if="successMessage" class="success">{{ successMessage }}</p>
+
   <main class="page">
     <section class="card">
       <h2>Books Export</h2>
@@ -171,15 +171,17 @@ button:disabled {
 
 .error {
   color: #c00;
+  padding: 0 24px;
 }
 
 .success {
   color: #0a7a2f;
+  padding: 0 24px;
 }
 
 @media (min-width: 900px) {
   .page {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
   }
 
   #sales-btn {
