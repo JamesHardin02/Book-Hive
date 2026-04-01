@@ -164,7 +164,7 @@ function familyIsActive(key: ReportFamily): boolean {
 }
 
 function prettyStatus(value: string): string {
-  return value.replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase())
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase())
 }
 
 function displayValue(column: string, value: unknown): string {
@@ -635,7 +635,6 @@ onMounted(() => {
 .summary-chip {
   border: 1px solid #8080805f;
   border-radius: 12px;
-  /* background: var(--color-background); */
 }
 
 .family-card {

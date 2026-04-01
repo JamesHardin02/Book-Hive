@@ -1,85 +1,69 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import type {
+  PlotlyModule,
+  PlotlyConfig,
+  PlotlyDatum,
+  PlotlyLayout,
+} from 'plotly.js-basic-dist-min'
 
-const props = withDefaults(
-  defineProps<{
-    data?: Record<string, unknown>[]
-    layout?: Record<string, unknown>
-    config?: Record<string, unknown>
-    loading?: boolean
-  }>(),
-  {
-    data: () => [],
-    layout: () => ({}),
-    config: () => ({}),
-    loading: false,
-  },
-)
+const props = defineProps<{
+  data: PlotlyDatum[]
+  layout?: PlotlyLayout
+  config?: PlotlyConfig
+}>()
 
-const host = ref<HTMLDivElement | null>(null)
-let plotlyLib: any = null
+const chartEl = ref<HTMLElement | null>(null)
+let plotlyLib: PlotlyModule | null = null
 
-async function getPlotly(): Promise<any> {
-  if (!plotlyLib) {
-    const mod = await import('plotly.js-basic-dist-min')
-    plotlyLib = (mod as { default?: unknown }).default ?? mod
-  }
-  return plotlyLib
+async function ensurePlotly(): Promise<PlotlyModule> {
+  if (plotlyLib) return plotlyLib
+
+  const mod = await import('plotly.js-basic-dist-min')
+  const loaded: PlotlyModule = mod.default ?? mod
+  plotlyLib = loaded
+  return loaded
 }
 
-async function renderPlot(): Promise<void> {
-  if (!host.value || props.loading) return
+async function renderChart(): Promise<void> {
+  if (!chartEl.value) return
 
-  const Plotly = await getPlotly()
-  await Plotly.react(
-    host.value,
-    props.data,
-    {
-      autosize: true,
-      margin: { l: 48, r: 16, t: 48, b: 56 },
-      paper_bgcolor: 'transparent',
-      plot_bgcolor: 'transparent',
-      font: { color: '#2c3e50' },
-      ...props.layout,
-    },
-    {
-      responsive: true,
-      displaylogo: false,
-      modeBarButtonsToRemove: ['lasso2d', 'select2d'],
-      ...props.config,
-    },
-  )
+  const Plotly = await ensurePlotly()
+  await Plotly.react(chartEl.value, props.data, props.layout ?? {}, props.config ?? {})
 }
+
+function handleResize(): void {
+  if (!chartEl.value || !plotlyLib?.Plots?.resize) return
+  plotlyLib.Plots.resize(chartEl.value)
+}
+
+onMounted(async () => {
+  await renderChart()
+  window.addEventListener('resize', handleResize)
+})
 
 watch(
-  () => [props.data, props.layout, props.config, props.loading],
-  () => {
-    if (!props.loading) {
-      void renderPlot()
-    }
+  () => [props.data, props.layout, props.config],
+  async () => {
+    await renderChart()
   },
   { deep: true },
 )
 
-onMounted(() => {
-  if (!props.loading) {
-    void renderPlot()
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+  if (chartEl.value && plotlyLib) {
+    plotlyLib.purge(chartEl.value)
   }
-})
-
-onBeforeUnmount(async () => {
-  if (!host.value) return
-  const Plotly = await getPlotly()
-  Plotly.purge(host.value)
 })
 </script>
 
 <template>
-  <div ref="host" class="plot-host" :aria-busy="loading ? 'true' : 'false'"></div>
+  <div ref="chartEl" class="plotly-chart"></div>
 </template>
 
 <style scoped>
-.plot-host {
+.plotly-chart {
   width: 100%;
   min-height: 420px;
 }
