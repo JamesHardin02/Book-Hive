@@ -79,7 +79,6 @@ const router = createRouter({
     {
       path: '/chart/:type',
       name: 'chart',
-      meta: { requiresAuth: true },
       component: () => import('../views/ChartView.vue'),
     },
     {

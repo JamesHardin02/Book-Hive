@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import { apiFetch, ApiError } from '@/lib/api'
 
@@ -53,6 +53,28 @@ const dueSoonLoans = ref<LoanOut[]>([])
 
 const dueSoonWindowDays = 7
 const panelLoanLimit = 5
+
+type ChartType = 'genre' | 'sales' | 'top10'
+const chartType = ref<ChartType>('genre')
+
+const chartImage = {
+  genre: '/src/assets/BI-Chart-Genre.png',
+  sales: '/src/assets/BI-Chart-Sales.png',
+  top10: '/src/assets/BI-Chart-Top10.png',
+}
+
+const chartSrc = computed(() => chartImage[chartType.value])
+
+const router = useRouter()
+const goToChart = () => {
+  const path = `/chart/${chartType.value}`
+  console.log('Navigating to', path)
+  router.push(path).catch((err) => {
+    console.error('router.push failed', err)
+    // Browser fallback
+    window.location.href = path
+  })
+}
 
 const lowStockRows = computed(() => inventoryData.value?.low_stock ?? [])
 const stockoutRows = computed(() => inventoryData.value?.stockout ?? [])
@@ -290,13 +312,21 @@ onMounted(() => {
           </div>
         </div>
 
-        <select class="chart-select">
-          <option>Checkouts by Genre (90 days)</option>
-          <option>Sales by Month (12 months)</option>
-          <option>Top 10 Most Sold Titles</option>
+        <select class="chart-select" v-model="chartType">
+          <option value="genre">Checkouts by Genre (90 days)</option>
+          <option value="sales">Sales by Month (12 months)</option>
+          <option value="top10">Top 10 Most Sold Titles</option>
         </select>
 
-        <img src="/src/assets/BI-Chart-Examples.png" alt="BI Chart Examples" />
+        <a :href="`/chart/${chartType}`" @click.prevent="goToChart">
+          <img
+            :src="chartSrc"
+            :alt="`BI chart: ${chartType}`"
+            style="cursor: pointer; display: block;"
+          />
+        </a>
+
+        <p class="hint">Click the chart image to open interactive view</p>
       </article>
     </section>
   </main>

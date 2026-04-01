@@ -7,8 +7,9 @@
     "test": "npm run test:unit --prefix frontend && python -m unittest discover -s backend/tests -p \"test_*.py\" -v",
     "format": "prettier --write .",
     "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend:win": "backend\\run-dev.cmd",
     "dev:backend:bash": "bash ./backend/run-dev.sh",
-    "dev:backend": "backend\\run-dev.cmd",
+    "dev:backend": "npm run dev:backend:bash",
     "dev": "concurrently -k -n BACKEND,FRONTEND \"npm run dev:backend\" \"npm run dev:frontend\""
   },
   "repository": {
