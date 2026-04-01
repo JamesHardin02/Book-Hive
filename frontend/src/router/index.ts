@@ -77,6 +77,12 @@ const router = createRouter({
       component: () => import('../views/ApiStatusView.vue'),
     },
     {
+      path: '/chart/:type',
+      name: 'chart',
+      meta: { requiresAuth: true },
+      component: () => import('../views/ChartView.vue'),
+    },
+    {
       path: '/logout',
       name: 'logout',
       meta: { requiresAuth: false },

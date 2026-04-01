@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import PageHeader from '@/components/PageHeader.vue'
 import { apiFetch, ApiError } from '@/lib/api'
 
@@ -20,9 +21,20 @@ type LowStockResponse = {
   stockout: LowStockItem[]
 }
 
+type ChartType = 'genre' | 'sales' | 'top10'
+
+const router = useRouter()
 const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<LowStockResponse | null>(null)
+const chartType = ref<ChartType>('genre')
+const chartImage: Record<ChartType, string> = {
+  genre: '/src/assets/BI-Chart-Genre.png',
+  sales: '/src/assets/BI-Chart-Sales.png',
+  top10: '/src/assets/BI-Chart-Top10.png',
+}
+
+const chartSrc = computed(() => chartImage[chartType.value] ?? chartImage.genre)
 
 onMounted(async () => {
   loading.value = true
@@ -40,6 +52,10 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+const goToChart = () => {
+  router.push(`/chart/${chartType.value}`)
+}
 </script>
 
 <template>
@@ -132,12 +148,12 @@ onMounted(async () => {
 
       <article id="BusinessIntelChart">
         <h2>Business Intelligence Chart</h2>
-        <select>
-          <option>Checkouts by Genre (90 days)</option>
-          <option>Sales by Month (12 months)</option>
-          <option>Top 10 Most Sold Titles</option>
+        <select v-model="chartType">
+          <option value="genre">Checkouts by Genre (90 days)</option>
+          <option value="sales">Sales by Month (12 months)</option>
+          <option value="top10">Top 10 Most Sold Titles</option>
         </select>
-        <img src="/src/assets/BI-Chart-Examples.png" alt="BI Chart Examples" />
+        <img :src="chartSrc" :alt="`Business Intelligence chart: ${chartType}`" @click="goToChart" style="cursor: pointer;" />
       </article>
     </section>
   </main>
