@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import BusinessIntelWorkspace from '@/components/BusinessIntelWorkspace.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { apiFetch, ApiError } from '@/lib/api'
 
@@ -283,21 +284,7 @@ onMounted(() => {
         </article>
       </section>
 
-      <article class="chart-card">
-        <div class="panel-header">
-          <div>
-            <h2>Business Intelligence Chart</h2>
-          </div>
-        </div>
-
-        <select class="chart-select">
-          <option>Checkouts by Genre (90 days)</option>
-          <option>Sales by Month (12 months)</option>
-          <option>Top 10 Most Sold Titles</option>
-        </select>
-
-        <img src="/src/assets/BI-Chart-Examples.png" alt="BI Chart Examples" />
-      </article>
+      <BusinessIntelWorkspace />
     </section>
   </main>
 </template>
@@ -410,20 +397,6 @@ td {
 .empty {
   text-align: center;
   padding: 16px;
-}
-
-.chart-select {
-  margin-bottom: 12px;
-  padding: 8px;
-  border: 1px solid #8080805f;
-  border-radius: 6px;
-}
-
-img {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: 8px;
 }
 
 @media (min-width: 1024px) {

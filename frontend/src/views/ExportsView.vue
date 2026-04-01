@@ -78,6 +78,15 @@ function exportSales(): void {
   <p v-if="successMessage" class="success">{{ successMessage }}</p>
 
   <main class="page">
+    <section class="card accent-card">
+      <h2>BI Report Exports</h2>
+      <p>
+        CSV exports for sales trends, circulation reports, and inventory health are now
+        available directly inside the Dashboard BI workspace.
+      </p>
+      <RouterLink class="dashboard-link" to="/dashboard">Open Dashboard BI Workspace</RouterLink>
+    </section>
+
     <section class="card">
       <h2>Books Export</h2>
       <p>
@@ -182,6 +191,10 @@ button:disabled {
 @media (min-width: 900px) {
   .page {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .accent-card {
+    grid-column: 1 / -1;
   }
 
   #sales-btn {
