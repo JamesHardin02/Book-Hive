@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from bookhive.db.models.member import Member
 from sqlalchemy.orm import Session
 
@@ -6,16 +8,8 @@ class MemberRepo:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_all(self) -> Member | None:
-        print("get all repo function hit")
-        print(self.db.query(Member).first())
-        return self.db.query(Member).first()
-
     def get_by_id(self, member_id: int) -> Member | None:
         return self.db.query(Member).filter(Member.id == member_id).first()
-
-    def get_by_email(self, email: str) -> Member | None:
-        return self.db.query(Member).filter(Member.email == email).first()
 
     def create(self, member: Member) -> Member:
         self.db.add(member)
@@ -30,20 +24,19 @@ class MemberRepo:
     def list_search(
         self,
         *,
-        q: str | None,
         name: str | None,
         email: str | None,
+        phone_number: str | None,
         offset: int,
         limit: int,
     ) -> list[Member]:
         qry = self.db.query(Member)
 
-        if q:
-            like = f"%{q}%"
-            qry = qry.filter((Member.name.ilike(like)) | (Member.email.ilike(like)))
         if name:
             qry = qry.filter(Member.name.ilike(f"%{name}%"))
         if email:
             qry = qry.filter(Member.email.ilike(f"%{email}%"))
+        if phone_number:
+            qry = qry.filter(Member.phone_number.ilike(f"%{phone_number}%"))
 
-        return qry.offset(offset).limit(limit).all()
+        return qry.order_by(Member.name.asc()).offset(offset).limit(limit).all()

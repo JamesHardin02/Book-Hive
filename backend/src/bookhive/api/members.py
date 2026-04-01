@@ -2,35 +2,24 @@ from fastapi import APIRouter, Depends, Query
 
 from bookhive.auth.dependencies import get_current_user
 from bookhive.db.models.user import User
-from bookhive.schemas.members import MemberCreate, MemberOut, MemberSearchResult, MemberUpdate
+from bookhive.schemas.members import MemberCreate, MemberOut, MemberUpdate
 from bookhive.services.deps import get_member_service
 from bookhive.services.member_service import MemberService
 
 router = APIRouter(prefix="/members", tags=["members"])
 
 
-@router.post("/", response_model=MemberOut, status_code=201)
+@router.post("", response_model=MemberOut, status_code=201)
 def create_member(
     payload: MemberCreate,
     svc: MemberService = Depends(get_member_service),
     _: User = Depends(get_current_user),
 ):
-    member = svc.create_member(
+    return svc.create_member(
         name=payload.name,
         email=payload.email,
         phone_number=payload.phone_number,
     )
-    return MemberOut.model_validate(member)
-
-
-@router.get("/", response_model=MemberOut)
-def get_members(
-    svc: MemberService = Depends(get_member_service),
-    _: User = Depends(get_current_user),
-):
-    print("Hit /members GET")
-    member = svc.get_members()
-    return MemberOut.model_validate(member)
 
 
 @router.get("/{member_id}", response_model=MemberOut)
@@ -39,8 +28,26 @@ def get_member(
     svc: MemberService = Depends(get_member_service),
     _: User = Depends(get_current_user),
 ):
-    member = svc.get_member(member_id)
-    return MemberOut.model_validate(member)
+    return svc.get_member(member_id=member_id)
+
+
+@router.get("", response_model=list[MemberOut])
+def list_members(
+    name: str | None = None,
+    email: str | None = None,
+    phone_number: str | None = Query(default=None),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(25, ge=1, le=100),
+    svc: MemberService = Depends(get_member_service),
+    _: User = Depends(get_current_user),
+):
+    return svc.list_members(
+        name=name,
+        email=email,
+        phone_number=phone_number,
+        offset=offset,
+        limit=limit,
+    )
 
 
 @router.patch("/{member_id}", response_model=MemberOut)
@@ -50,29 +57,14 @@ def update_member(
     svc: MemberService = Depends(get_member_service),
     _: User = Depends(get_current_user),
 ):
-    member = svc.update_member(
-        member_id=member_id,
-        **payload.model_dump(exclude_unset=True),
-    )
-    return MemberOut.model_validate(member)
+    return svc.update_member(member_id=member_id, **payload.model_dump(exclude_unset=True))
 
 
-@router.get("/search", response_model=MemberSearchResult)
-def search_members(
-    q: str | None = None,
-    page: int = Query(1, ge=1),
-    page_size: int = Query(25, ge=1, le=100),
+@router.delete("/{member_id}", status_code=204)
+def delete_member(
+    member_id: int,
     svc: MemberService = Depends(get_member_service),
     _: User = Depends(get_current_user),
 ):
-    offset = (page - 1) * page_size
-
-    results = svc.search_members(q=q or " ", offset=offset, limit=page_size)
-    total = svc.count_members(q=q or " ")
-
-    return MemberSearchResult(
-        total=total,
-        page=page,
-        page_size=page_size,
-        results=[MemberOut.model_validate(m) for m in results],
-    )
+    svc.delete_member(member_id=member_id)
+    return None

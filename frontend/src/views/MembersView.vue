@@ -1,351 +1,442 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import PageHeader from '@/components/PageHeader.vue'
 import { apiFetch, ApiError } from '@/lib/api'
 
-// Local-only UI: selection + inline edit; no backend calls here
-type MemberRow = { id: number; name?: string; email?: string; phone_number?: string; created_at?: string }
-
-const members = ref<MemberRow[]>([])
-const search = ref('')
-const placeholderCount = 7
-
-const filtered = computed(() => {
-  const q = search.value.trim().toLowerCase()
-  console.log("Line 14: Check Q pre-condition", "q:", q ,"members.value:", members.value)
-  if (!q) return members.value
-  console.log("Line 16: Check Q post-condition:", q)
-  return members.value.filter((m) => (m.name || '').toLowerCase().includes(q) || (m.email || '').toLowerCase().includes(q))
-})
-
-const placeholders = computed(() => Array.from({ length: placeholderCount }))
-
-// selection and inline edit state
-const selectedId = ref<number | null>(null)
-const editingId = ref<number | null>(null)
-const editModel = ref<Partial<MemberRow>>({})
-
-function onSelect(id: number, checked: boolean) {
-  selectedId.value = checked ? id : null
-  if (!checked) {
-    editingId.value = null
-    editModel.value = {}
-  }
+type MemberOut = {
+  id: number
+  name: string
+  email: string
+  phone_number: string
+  created_at: string
 }
 
-function startEdit() {
-  if (!selectedId.value) return
-  const m = members.value.find((x) => x.id === selectedId.value)
-  if (!m) return
-  editingId.value = m.id
-  editModel.value = { ...m }
+type EditForm = {
+  name: string
+  email: string
+  phone_number: string
 }
 
-function saveEdit() {
-  if (!editingId.value) return
-  const idx = members.value.findIndex((x) => x.id === editingId.value)
-  if (idx === -1) return
-  members.value[idx] = { ...members.value[idx], ...(editModel.value as MemberRow) }
-  editingId.value = null
-  selectedId.value = null
-  editModel.value = {}
-}
+const loading = ref(false)
+const saving = ref(false)
+const deletingId = ref<number | null>(null)
 
-function cancelEdit() {
-  editingId.value = null
-  editModel.value = {}
-}
-
-function deleteMember() {
-  if (!selectedId.value) return
-  const idx = members.value.findIndex((x) => x.id === selectedId.value)
-  if (idx === -1) return
-  if (!confirm('Delete selected member?')) return
-  members.value.splice(idx, 1)
-  selectedId.value = null
-  editingId.value = null
-}
-
-const loading = ref(true)
 const error = ref<string | null>(null)
-const data = ref<MemberRow | null>(null)
+const successMessage = ref<string | null>(null)
 
-onMounted(async () => {
+const members = ref<MemberOut[]>([])
+const editForms = ref<Record<number, EditForm>>({})
+
+// create form
+const createName = ref('')
+const createEmail = ref('')
+const createPhoneNumber = ref('')
+
+// filters
+const nameFilter = ref('')
+const emailFilter = ref('')
+const phoneFilter = ref('')
+
+// paging
+const offset = ref(0)
+const limit = ref(25)
+
+function getEditForm(member: MemberOut): EditForm {
+  let form = editForms.value[member.id]
+
+  if (!form) {
+    form = {
+      name: member.name,
+      email: member.email,
+      phone_number: member.phone_number,
+    }
+    editForms.value[member.id] = form
+  }
+
+  return form
+}
+
+function clearMessages(): void {
+  error.value = null
+  successMessage.value = null
+}
+
+function buildQuery(): string {
+  const params = new URLSearchParams()
+
+  if (nameFilter.value.trim()) params.set('name', nameFilter.value.trim())
+  if (emailFilter.value.trim()) params.set('email', emailFilter.value.trim())
+  if (phoneFilter.value.trim()) params.set('phone_number', phoneFilter.value.trim())
+
+  params.set('offset', String(offset.value))
+  params.set('limit', String(limit.value))
+  return params.toString()
+}
+
+async function fetchMembers(): Promise<void> {
   loading.value = true
   error.value = null
 
   try {
-    data.value = await apiFetch<MemberRow>('/members')
-  } catch (e) {
-    if (e instanceof ApiError) {
-      error.value = e.message
-      console.log(error.value)
-    } else {
-      error.value = String(e)
-      console.log(error.value)
+    const query = buildQuery()
+    const path = query ? `/members?${query}` : '/members'
+    const data = await apiFetch<MemberOut[]>(path)
+    members.value = data
+
+    const nextForms: Record<number, EditForm> = {}
+    for (const m of data) {
+      nextForms[m.id] = {
+        name: m.name,
+        email: m.email,
+        phone_number: m.phone_number,
+      }
     }
+    editForms.value = nextForms
+  } catch (e) {
+    if (e instanceof ApiError) error.value = e.message
+    else error.value = String(e)
+    members.value = []
+    editForms.value = {}
   } finally {
     loading.value = false
   }
+}
+
+function clearFilters(): void {
+  nameFilter.value = ''
+  emailFilter.value = ''
+  phoneFilter.value = ''
+  offset.value = 0
+  fetchMembers()
+}
+
+function onSearch(e: Event): void {
+  e.preventDefault()
+  offset.value = 0
+  fetchMembers()
+}
+
+function nextPage(): void {
+  offset.value += limit.value
+  fetchMembers()
+}
+
+function prevPage(): void {
+  offset.value = Math.max(0, offset.value - limit.value)
+  fetchMembers()
+}
+
+function resetCreateForm(): void {
+  createName.value = ''
+  createEmail.value = ''
+  createPhoneNumber.value = ''
+}
+
+async function createMember(e: Event): Promise<void> {
+  e.preventDefault()
+  clearMessages()
+  saving.value = true
+
+  try {
+    const created = await apiFetch<MemberOut>('/members', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: createName.value.trim(),
+        email: createEmail.value.trim(),
+        phone_number: createPhoneNumber.value.trim(),
+      }),
+    })
+
+    successMessage.value = `Created member "${created.name}".`
+    resetCreateForm()
+    await fetchMembers()
+  } catch (e) {
+    if (e instanceof ApiError) error.value = e.message
+    else error.value = String(e)
+  } finally {
+    saving.value = false
+  }
+}
+
+async function saveMember(member: MemberOut): Promise<void> {
+  clearMessages()
+  saving.value = true
+
+  try {
+    const form = getEditForm(member)
+
+    const updated = await apiFetch<MemberOut>(`/members/${member.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone_number: form.phone_number.trim(),
+      }),
+    })
+
+    successMessage.value = `Updated member "${updated.name}".`
+    await fetchMembers()
+  } catch (e) {
+    if (e instanceof ApiError) error.value = e.message
+    else error.value = String(e)
+  } finally {
+    saving.value = false
+  }
+}
+
+async function deleteMember(member: MemberOut): Promise<void> {
+  clearMessages()
+  deletingId.value = member.id
+
+  try {
+    await apiFetch(`/members/${member.id}`, {
+      method: 'DELETE',
+    })
+
+    successMessage.value = `Deleted member "${member.name}".`
+    await fetchMembers()
+  } catch (e) {
+    if (e instanceof ApiError) error.value = e.message
+    else error.value = String(e)
+  } finally {
+    deletingId.value = null
+  }
+}
+
+const filteredMembers = computed(() => members.value)
+
+onMounted(() => {
+  fetchMembers()
 })
 </script>
 
 <template>
   <PageHeader page="Members" />
+
   <main style="padding: 24px">
-    <form>
-      <section>
-        <h2>Members</h2>
+    <section class="card">
+      <h2>Register Member</h2>
 
-        <div class="header-actions">
-          <button type="button" class="primary">+ Add Member</button>
-          <div class="action-controls">
-            <button v-if="selectedId && !editingId" @click="startEdit">Edit Member</button>
-            <button v-if="selectedId && !editingId" @click="deleteMember">Delete Member</button>
-            <button v-if="editingId" @click="saveEdit">Save</button>
-            <button v-if="editingId" @click="cancelEdit">Cancel</button>
-          </div>
-          <div class="search-wrap">
-            <input id="member-search" v-model="search" type="text" placeholder="Type member name..." aria-label="Search member" />
-          </div>
+      <form class="create-form" @submit="createMember">
+        <label>
+          Name
+          <input v-model="createName" type="text" required />
+        </label>
+
+        <label>
+          Email
+          <input v-model="createEmail" type="email" required />
+        </label>
+
+        <label>
+          Phone Number
+          <input v-model="createPhoneNumber" type="text" required />
+        </label>
+
+        <div class="actions">
+          <button type="submit" :disabled="saving">
+            {{ saving ? 'Creating…' : 'Create Member' }}
+          </button>
+          <button type="button" @click="resetCreateForm" :disabled="saving">Reset</button>
         </div>
+      </form>
+    </section>
 
-        <div class="members-table-wrap">
-          <table class="members-table">
-            <thead>
-              <tr>
-                <th style="width:40px"></th>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Joined</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="m in filtered" :key="m.id">
-                <td>
-                  <input
-                    type="checkbox"
-                    :checked="selectedId === m.id"
-                    @change="(e) => onSelect(m.id, (e.target as HTMLInputElement).checked)"
-                  />
-                </td>
-                <td>{{ m.id }}</td>
-                <td v-if="editingId !== m.id">{{ m.name }}</td>
-                <td v-else><input v-model="editModel.name" /></td>
-                <td v-if="editingId !== m.id">{{ m.email }}</td>
-                <td v-else><input v-model="editModel.email" /></td>
-                <td v-if="editingId !== m.id">{{ m.phone_number }}</td>
-                <td v-else><input v-model="editModel.phone_number" /></td>
-                <td v-if="editingId !== m.id">{{ m.created_at }}</td>
-                <td v-else><input v-model="editModel.created_at" /></td>
-              </tr>
-              <tr v-if="filtered.length === 0" class="placeholder-row" v-for="(_, i) in placeholders" :key="`ph-${i}`">
-                <td class="placeholder">
-                  <input
-                    type="checkbox"
-                    :checked="selectedId === -(i + 1)"
-                    @change="(e) => onSelect(-(i + 1), (e.target as HTMLInputElement).checked)"
-                  />
-                </td>
-                <td class="placeholder">—</td>
-                <td class="placeholder">&nbsp;</td>
-                <td class="placeholder">&nbsp;</td>
-                <td class="placeholder">&nbsp;</td>
-                <td class="placeholder">&nbsp;</td>
-              </tr>
-            </tbody>
-          </table>
+    <section class="card">
+      <form class="toolbar" @submit="onSearch">
+        <div class="submission">
+          <button type="submit" :disabled="loading">Search</button>
+          <button type="button" @click="clearFilters" :disabled="loading">Clear</button>
         </div>
+        <div class="pager">
+          <button type="button" @click="prevPage" :disabled="loading || offset === 0">Prev</button>
+          <button type="button" @click="nextPage" :disabled="loading">Next</button>
+        </div>
+      </form>
 
-      </section>
-    </form>
+      <p v-if="loading">Loading members…</p>
+      <p v-else-if="error" class="error">{{ error }}</p>
+      <p v-if="successMessage" class="success">{{ successMessage }}</p>
+
+      <div class="table-wrap" v-if="!loading">
+        <table>
+          <thead>
+            <tr>
+              <th><input v-model="nameFilter" type="text" placeholder="Name" /></th>
+              <th><input v-model="emailFilter" type="text" placeholder="Email" /></th>
+              <th><input v-model="phoneFilter" type="text" placeholder="Phone" /></th>
+              <th>—</th>
+              <th>—</th>
+            </tr>
+
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone Number</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for="m in filteredMembers" :key="m.id">
+              <td>
+                <input v-model="getEditForm(m).name" type="text" />
+              </td>
+
+              <td>
+                <input v-model="getEditForm(m).email" type="email" />
+              </td>
+
+              <td>
+                <input v-model="getEditForm(m).phone_number" type="text" />
+              </td>
+
+              <td>{{ m.created_at }}</td>
+
+              <td>
+                <div class="button-row">
+                  <button type="button" @click="saveMember(m)" :disabled="saving">
+                    {{ saving ? 'Saving…' : 'Save' }}
+                  </button>
+                  <button type="button" @click="deleteMember(m)" :disabled="deletingId === m.id">
+                    {{ deletingId === m.id ? 'Deleting…' : 'Delete' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <tr v-if="!error && filteredMembers.length === 0">
+              <td colspan="5" style="text-align: center; padding: 16px">No members found</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </main>
 </template>
 
 <style scoped>
-form {
-  margin: 40px auto;
-  padding: 24px;
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  gap: 32px;
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-section {
-  padding: 20px;
+.submission {
+  display: flex;
+  gap: 8px;
+}
+
+.card {
+  border: 1px solid #8080805f;
+  border-radius: 10px;
+  padding: 16px;
   background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
 }
 
-h2 {
-  margin-bottom: 12px;
-  margin-right: 12px;
-  color: var(--color-heading);
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
+.create-form {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
-.section-header h2 {
-  margin: 0;
-}
-
-.header-actions {
+label {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.header-actions .search-wrap {
-  display: flex;
-  align-items: center;
-}
-
-.header-actions input[type="text"] {
-  width: 320px;
-  padding: 8px 10px;
-  margin: 0;
-}
-
-.members-table-wrap {
-  margin-top: 12px;
-}
-
-.members-table {
+input {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #8080805f;
+  border-radius: 6px;
+  box-sizing: border-box;
 }
 
-.members-table th,
-.members-table td {
-  border: 1px solid var(--color-border);
-  padding: 8px 10px;
-  text-align: left;
+.toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
-.members-table thead th {
-  background: var(--color-background-soft);
-}
-
-.members-table .placeholder {
-  color: var(--color-text);
-  opacity: 0.55;
-}
-
-.members-table .placeholder-row td {
-  background: var(--color-background-mute);
-}
-
-.action-controls button {
-  width: auto;
-  padding: 8px 10px;
-  background: var(--vt-c-slate, #6b7280);
-}
-.action-controls {
+.pager {
+  margin-left: auto;
   display: flex;
   gap: 8px;
   align-items: center;
 }
-.members-table thead th:first-child,
-.members-table tbody td:first-child {
-  text-align: center;
-  width: 40px;
+
+.actions,
+.button-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  color: var(--color-text);
-}
-
-input,
-select {
+.table-wrap {
   width: 100%;
-  padding: 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background: var(--color-background-soft);
-  color: var(--color-text);
-  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* ensure checkboxes are not stretched by the generic input rule */
-input[type="checkbox"] {
-  width: auto;
-  height: auto;
-  margin: 0;
-  vertical-align: middle;
+table {
+  min-width: 900px;
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+th,
+td {
+  border: 1px solid #8080805f;
+  padding: 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+thead input {
+  width: 100%;
 }
 
 button {
-  width: 120px;
-  padding: 10px 16px;
+  padding: 8px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--vt-c-indigo);
   color: white;
   cursor: pointer;
-  transition: background 0.2s;
 }
 
-button:hover {
-  background: #1f2d3a;
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-span {
-  width: 140px;
-  height: 200px;
-  background: var(--color-background-mute);
-  border: 1px solid var(--color-border);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 12px;
-  text-align: center;
-  padding: 8px;
+.error {
+  color: #c00;
+  margin-bottom: 10px;
 }
 
-article p {
-  margin-bottom: 6px;
+.success {
+  color: #0a7a2f;
+  margin-bottom: 10px;
 }
 
-menu {
-  margin-top: 20px;
-  display: flex;
-  gap: 12px;
-  padding: 0px;
-}
-
-#guide-box {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--color-text);
-}
-
-/* Tablets and higher */
-@media (min-width: 460px) {
-  #book {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+@media (min-width: 900px) {
+  .create-form {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: end;
   }
-}
 
-/* Tablets and higher */
-@media (min-width: 768px) {
-  form {
-    max-width: 1100px;
-    display: grid;
+  .actions {
+    flex-wrap: nowrap;
   }
 }
 </style>

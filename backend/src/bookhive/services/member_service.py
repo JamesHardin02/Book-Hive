@@ -1,108 +1,63 @@
+from __future__ import annotations
+
+from datetime import date
+
 from bookhive.db.models.member import Member
 from bookhive.repos.member_repo import MemberRepo
 from fastapi import HTTPException, status
 
 
-def _normalize_phone(phone: str) -> str:
-    return " ".join(ch for ch in phone if ch.isdigit())
-
-
 class MemberService:
-    def __init__(self, member_repo: MemberRepo):
-        self.member_repo = member_repo
+    def __init__(self, repo: MemberRepo):
+        self.repo = repo
 
-    def create_member(
-        self,
-        *,
-        name: str,
-        email: str,
-        phone_number: str,
-    ) -> Member:
-        # Email uniqueness check
-        existing = self.member_repo.get_by_email(email)
-        if existing:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Email '{email}' is already in use",
-            )
-
-        normalized_phone = _normalize_phone(phone_number)
-
+    def create_member(self, *, name: str, email: str, phone_number: str) -> Member:
         member = Member(
             name=name,
             email=email,
-            phone_number=normalized_phone,
+            phone_number=phone_number,
+            created_at=date.today(),
         )
-
-        return self.member_repo.create(member)
-
-    def get_members(self) -> Member:
-        member = self.member_repo.get_all()
-        print("Hit member service. Here is member: ", member)
-        if not member:
-            raise HTTPException(
-                status_code=status.HTTP_406_NOT_ACCEPTABLE,
-                detail="Members not found",
-            )
-        return member
+        return self.repo.create(member)
 
     def get_member(self, *, member_id: int) -> Member:
-        member = self.member_repo.get_by_id(member_id)
+        member = self.repo.get_by_id(member_id)
         if not member:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Member not found",
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
         return member
 
-    def update_member(
+    def list_members(
         self,
         *,
-        member_id: int,
-        name: str | None = None,
-        email: str | None = None,
-        phone_number: str | None = None,
-    ) -> Member:
-        member = self.member_repo.get_by_id(member_id)
-        if not member:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Member not found",
-            )
-
-        # Email uniqueness check
-        if email is not None:
-            existing = self.member_repo.get_by_email(email)
-            if existing and existing.id != member.id:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=f"Email '{email}' is already in use",
-                )
-            member.email = email
-
-        if name is not None:
-            member.name = name
-
-        if phone_number is not None:
-            member.phone_number = _normalize_phone(phone_number)
-
-        # Commit update
-        self.member_repo.db.commit()
-        self.member_repo.db.refresh(member)
-        return member
-
-    def search_members(
-        self,
-        *,
-        q: str,
+        name: str | None,
+        email: str | None,
+        phone_number: str | None,
         offset: int,
         limit: int,
     ) -> list[Member]:
-        return self.member_repo.search(
-            q=q,
+        return self.repo.list_search(
+            name=name,
+            email=email,
+            phone_number=phone_number,
             offset=offset,
             limit=limit,
         )
 
-    def count_members(self, *, q: str) -> int:
-        return self.member_repo.count(q)
+    def update_member(self, *, member_id: int, **fields) -> Member:
+        member = self.repo.get_by_id(member_id)
+        if not member:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+
+        for key, value in fields.items():
+            if value is not None:
+                setattr(member, key, value)
+
+        self.repo.db.commit()
+        self.repo.db.refresh(member)
+        return member
+
+    def delete_member(self, *, member_id: int) -> None:
+        member = self.repo.get_by_id(member_id)
+        if not member:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
+        self.repo.delete(member)
