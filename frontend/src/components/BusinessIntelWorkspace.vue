@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import chartSprite from '@/assets/BI-Chart-Examples.png'
+import donutThumb from '@/assets/donut-charts.png'
+import columnThumb from '@/assets/column-charts.png'
+import timelineThumb from '@/assets/timeline-charts.png'
+import waterfallThumb from '@/assets/waterfall-charts.png'
+import networkThumb from '@/assets/network-charts.png'
+import areaLineThumb from '@/assets/area-line-charts.png'
 import { apiFetch, ApiError } from '@/lib/api'
 import PlotlyChart from '@/components/PlotlyChart.vue'
 
@@ -40,7 +45,7 @@ type Tile = {
   key: ChartStyle
   label: string
   blurb: string
-  position: string
+  thumbnail: string
   planned?: boolean
 }
 
@@ -67,38 +72,38 @@ const chartTiles: Tile[] = [
     key: 'donut',
     label: 'Donut chart',
     blurb: 'Category share and composition.',
-    position: '0% 0%',
+    thumbnail: donutThumb,
   },
   {
     key: 'bar',
     label: 'Column chart',
     blurb: 'Strong for comparing categories.',
-    position: '50% 0%',
+    thumbnail: columnThumb,
   },
   {
     key: 'area',
     label: 'Area & Line charts',
     blurb: 'Best for trend and movement over time.',
-    position: '100% 0%',
+    thumbnail: areaLineThumb,
   },
   {
     key: 'waterfall',
     label: 'Waterfall chart',
     blurb: 'Planned style for future delta analysis.',
-    position: '0% 100%',
+    thumbnail: waterfallThumb,
     planned: true,
   },
   {
     key: 'timeline',
     label: 'Timeline chart',
     blurb: 'Time-bucket views for weekly/monthly reporting.',
-    position: '50% 100%',
+    thumbnail: timelineThumb,
   },
   {
     key: 'network',
     label: 'Network chart',
     blurb: 'Planned style for future relationship mapping.',
-    position: '100% 100%',
+    thumbnail: networkThumb,
     planned: true,
   },
 ]
@@ -136,14 +141,6 @@ const currentTableRows = computed(() => {
 const hasChartData = computed(
   () => currentRows.value.length > 0 || currentDetailRows.value.length > 0,
 )
-
-function tilePreviewStyle(tile: Tile): Record<string, string> {
-  return {
-    backgroundImage: `linear-gradient(rgba(255,255,255,.18), rgba(255,255,255,.18)), url(${chartSprite})`,
-    backgroundPosition: tile.position,
-    backgroundSize: '300% 200%',
-  }
-}
 
 function getApiBase(): string {
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
@@ -306,6 +303,20 @@ async function exportCurrentReport(): Promise<void> {
   }
 }
 
+const chartPalette = [
+  '#E2BE1B', // yellow
+  '#F28C00', // orange
+  '#E53935', // red
+  '#D81B9C', // fuchsia
+  '#6C4CE3', // indigo
+  '#3B82F6', // mediterranean blue
+  '#17A2A4', // teal
+  '#57C84D', // bright green
+]
+
+const paleYellowFill = 'rgba(236, 223, 157, 0.7)'
+const lineStroke = '#2C3E50'
+
 const plotSpec = computed(() => {
   if (!report.value) {
     return {
@@ -334,6 +345,9 @@ const plotSpec = computed(() => {
           values,
           hole: 0.45,
           textinfo: 'label+percent',
+          marker: {
+            colors: labels.map((_, index) => chartPalette[index % chartPalette.length]),
+          },
         },
       ],
       layout: {
@@ -351,6 +365,9 @@ const plotSpec = computed(() => {
           type: 'bar',
           x: labels,
           y: values,
+          marker: {
+            color: labels.map((_, index) => chartPalette[index % chartPalette.length]),
+          },
           hovertemplate: '%{x}<br>%{y}<extra></extra>',
         },
       ],
@@ -367,6 +384,15 @@ const plotSpec = computed(() => {
           x: labels,
           y: values,
           fill: 'tozeroy',
+          fillcolor: paleYellowFill,
+          line: {
+            color: lineStroke,
+            width: 2,
+          },
+          marker: {
+            color: lineStroke,
+            size: 6,
+          },
           hovertemplate: '%{x}<br>%{y}<extra></extra>',
         },
       ],
@@ -381,6 +407,14 @@ const plotSpec = computed(() => {
         mode: 'lines+markers',
         x: labels,
         y: values,
+        line: {
+          color: lineStroke,
+          width: 2,
+        },
+        marker: {
+          color: lineStroke,
+          size: 6,
+        },
         hovertemplate: '%{x}<br>%{y}<extra></extra>',
       },
     ],
@@ -422,7 +456,7 @@ onMounted(() => {
         <h2>Business Intelligence Workspace</h2>
         <p class="bi-subtitle">
           Choose a report family, pick a live chart style, then adjust filters to build a dynamic
-          Plotly chart.
+          BI chart.
         </p>
       </div>
     </div>
@@ -513,84 +547,59 @@ onMounted(() => {
       </article>
     </section>
 
-    <section class="tile-grid" aria-label="Chart style picker">
-      <button
-        v-for="tile in chartTiles"
-        :key="tile.key"
-        type="button"
-        class="tile-card"
-        :class="{
-          selected: selectedStyle === tile.key,
-          disabled: styleDisabled(tile),
-        }"
-        :disabled="styleDisabled(tile)"
-        @click="selectStyle(tile)"
-      >
-        <div class="tile-preview" :style="tilePreviewStyle(tile)"></div>
-        <div class="tile-copy">
-          <div class="tile-title-row">
+    <p v-if="error" class="error">{{ error }}</p>
+    <p v-if="exportMessage" class="success">{{ exportMessage }}</p>
+
+    <section class="bi-canvas-shell">
+      <aside class="style-rail" aria-label="Chart style picker">
+        <button
+          v-for="tile in chartTiles"
+          :key="tile.key"
+          type="button"
+          class="tile-card compact-tile"
+          :class="{
+            selected: selectedStyle === tile.key,
+            disabled: styleDisabled(tile),
+          }"
+          :disabled="styleDisabled(tile)"
+          :title="`${tile.label} — ${tile.blurb}`"
+          @click="selectStyle(tile)"
+        >
+          <img
+            class="tile-preview compact-preview"
+            :src="tile.thumbnail"
+            :alt="tile.label"
+          />
+          <div class="tile-copy compact-copy">
             <strong>{{ tile.label }}</strong>
             <span v-if="tile.planned" class="tile-tag muted">Planned</span>
             <span v-else-if="styleDisabled(tile)" class="tile-tag muted">Unavailable</span>
             <span v-else class="tile-tag active-tag">Live</span>
           </div>
-          <p>{{ tile.blurb }}</p>
-        </div>
-      </button>
-    </section>
+        </button>
+      </aside>
 
-    <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="exportMessage" class="success">{{ exportMessage }}</p>
+      <div class="chart-stage">
+        <section v-if="loading" class="chart-shell empty-state">
+          <h3>Loading report…</h3>
+          <p>Fetching report data and preparing the chart workspace.</p>
+        </section>
 
-    <section v-if="loading" class="chart-shell empty-state">
-      <h3>Loading report…</h3>
-      <p>Fetching report data and preparing the chart workspace.</p>
-    </section>
+        <section v-else-if="report && hasChartData" class="chart-shell">
+          <div class="chart-header">
+            <div>
+              <h3>{{ report.title }}</h3>
+              <p>{{ report.description }}</p>
+            </div>
+          </div>
 
-    <section v-else-if="report && hasChartData" class="chart-shell">
-      <div class="chart-header">
-        <div>
+          <PlotlyChart :data="plotSpec.data" :layout="plotSpec.layout" :loading="loading" />
+        </section>
+
+        <section v-else-if="report" class="chart-shell empty-state">
           <h3>{{ report.title }}</h3>
-          <p>{{ report.description }}</p>
-        </div>
-      </div>
-
-      <PlotlyChart :data="plotSpec.data" :layout="plotSpec.layout" :loading="loading" />
-    </section>
-
-    <section v-else-if="report" class="chart-shell empty-state">
-      <h3>{{ report.title }}</h3>
-      <p>{{ report.empty_message }}</p>
-    </section>
-
-    <section v-if="report && currentTableColumns.length > 0" class="table-shell">
-      <div class="chart-header">
-        <div>
-          <h3>{{ currentDetailRows.length > 0 ? 'Detailed rows' : 'Report data' }}</h3>
-          <p>These rows match what will be exported for the current filtered report view.</p>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th v-for="column in currentTableColumns" :key="column">{{ column }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(row, index) in currentTableRows" :key="`${report.report}-${index}`">
-              <td v-for="column in currentTableColumns" :key="column">
-                {{ displayValue(column, row[column]) }}
-              </td>
-            </tr>
-            <tr v-if="currentTableRows.length === 0">
-              <td :colspan="currentTableColumns.length" class="empty-row">
-                No rows match the current report filters.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+          <p>{{ report.empty_message }}</p>
+        </section>
       </div>
     </section>
   </article>
@@ -618,7 +627,6 @@ onMounted(() => {
 }
 
 .report-family-grid,
-.tile-grid,
 .summary-grid,
 .filter-bar {
   display: grid;
@@ -718,13 +726,23 @@ onMounted(() => {
   font-size: 1.1rem;
 }
 
-.tile-grid {
+.bi-canvas-shell {
+  display: grid;
   grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: start;
   margin-bottom: 16px;
 }
 
-.tile-card {
-  padding: 0;
+.style-rail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.compact-tile {
+  padding: 8px;
+  min-height: 80px;
   overflow: hidden;
   transition:
     transform 0.18s ease,
@@ -732,9 +750,9 @@ onMounted(() => {
     border-color 0.18s ease;
 }
 
-.tile-card:hover:not(.disabled),
+.compact-tile:hover:not(.disabled),
 .family-card:hover {
-  transform: translateY(-2px) scale(1.01);
+  transform: translateY(-2px) scale(1.02);
 }
 
 .tile-card.disabled {
@@ -742,34 +760,35 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-.tile-preview {
+.compact-preview {
+  display: none;
   width: 100%;
-  height: 160px;
-  background-repeat: no-repeat;
-  border-bottom: 1px solid #8080805f;
+  height: 34px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 8px;
+  border: 1px solid #80808040;
+  background: #fff;
 }
 
-.tile-copy {
-  padding: 12px;
+.compact-copy {
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   text-align: left;
 }
 
-.tile-copy p {
-  margin-top: 6px;
-  opacity: 0.82;
-}
-
-.tile-title-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
+.compact-copy strong {
+  font-size: 0.78rem;
+  line-height: 1.1;
 }
 
 .tile-tag {
   border-radius: 999px;
   padding: 2px 10px;
-  font-size: 0.8rem;
+  font-size: 0.74rem;
+  width: fit-content;
 }
 
 .tile-tag.muted {
@@ -778,6 +797,10 @@ onMounted(() => {
 
 .tile-tag.active-tag {
   background: #fff1cc;
+}
+
+.chart-stage {
+  min-width: 0;
 }
 
 .chart-shell,
@@ -789,7 +812,7 @@ onMounted(() => {
 }
 
 .chart-shell {
-  margin-bottom: 16px;
+  min-width: 0;
 }
 
 .chart-header {
@@ -839,14 +862,93 @@ onMounted(() => {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .tile-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .style-rail {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .compact-tile {
+    min-height: 74px;
+    padding: 8px 6px;
+  }
+
+  .compact-preview {
+    height: 30px;
+    display: none;
+  }
+
+  .compact-copy {
+    margin-top: 0;
+  }
+
+  .compact-copy strong {
+    font-size: 0.72rem;
+  }
+
+  .tile-tag {
+    font-size: 0.68rem;
+    padding: 2px 8px;
   }
 }
 
-@media (min-width: 1180px) {
-  .tile-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+@media (min-width: 1024px) {
+  .bi-canvas-shell {
+    grid-template-columns: 108px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .style-rail {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    align-self: start;
+  }
+
+  .compact-tile {
+    min-height: 66px;
+    padding: 8px 6px;
+  }
+
+  .compact-preview {
+    height: 24px;
+    display: block;
+  }
+
+  .compact-copy {
+    margin-top: 6px;
+    gap: 3px;
+    margin-top: 6px;
+  }
+
+  .compact-copy strong {
+    font-size: 0.68rem;
+  }
+
+  .tile-tag {
+    font-size: 0.64rem;
+    padding: 2px 7px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .bi-canvas-shell {
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .compact-tile {
+    min-height: 72px;
+    padding: 9px 8px;
+  }
+
+  .compact-preview {
+    height: 28px;
+  }
+
+  .compact-copy strong {
+    font-size: 0.74rem;
+  }
+
+  .tile-tag {
+    font-size: 0.68rem;
   }
 }
 </style>
