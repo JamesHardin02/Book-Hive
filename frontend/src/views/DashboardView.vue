@@ -118,10 +118,6 @@ onMounted(() => {
     <p v-else-if="error" class="error">Error: {{ error }}</p>
 
     <section v-else-if="inventoryData" class="dashboard-shell">
-      <p class="threshold-note">
-        Default low stock threshold: <strong>{{ inventoryData.default_threshold }}</strong>
-      </p>
-
       <section class="panel-grid">
         <article class="panel-card">
           <div class="panel-header">
@@ -165,7 +161,9 @@ onMounted(() => {
           <div class="panel-header">
             <div>
               <h2>Low Stock</h2>
-              <p class="panel-subtitle">Titles at or below threshold.</p>
+              <p class="panel-subtitle">
+                Titles at or below their set threshold.
+              </p>
             </div>
             <RouterLink class="panel-link" to="/inventory">Open Inventory</RouterLink>
           </div>
@@ -302,10 +300,6 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.threshold-note {
-  margin-bottom: 4px;
 }
 
 .panel-grid {
