@@ -30,6 +30,7 @@ The system combines day-to-day operational workflows with dashboards and report 
 Managers log in using email and password.
 
 After successful login:
+
 - the system stores an authentication cookie
 - protected pages become accessible
 - logout clears the session cookie
@@ -131,6 +132,7 @@ The Returns page supports:
 - returning books directly from the page
 
 Returning a book:
+
 - marks the loan as returned
 - increments inventory back by one
 
@@ -158,6 +160,7 @@ The Dashboard includes two major areas:
 ### 1. Operational Panels
 
 These provide quick visibility into:
+
 - stockout books
 - low-stock books
 - overdue loans
@@ -170,6 +173,7 @@ These panels help managers quickly identify urgent actions.
 The BI Workspace lets managers build dynamic reports using interactive charts.
 
 Managers can:
+
 - choose a report family
 - choose a chart style
 - apply filters
@@ -188,6 +192,7 @@ The BI Workspace includes:
 ### Chart Styles
 
 The BI Workspace supports live chart styles where appropriate, such as:
+
 - donut
 - column/bar
 - line
@@ -203,6 +208,7 @@ Some planned chart styles may appear visually in the selector but are not active
 ### Sales Trends
 
 Used to analyze:
+
 - revenue over time
 - units sold over time
 - weekly/monthly time buckets
@@ -210,12 +216,14 @@ Used to analyze:
 ### Circulation Metrics
 
 Used to analyze:
+
 - checkouts by genre
 - top circulated titles
 
 ### Inventory Health
 
 Used to analyze:
+
 - stockout titles
 - low-stock titles
 - healthy inventory counts
@@ -230,6 +238,7 @@ Book-Hive supports two kinds of CSV export.
 ### Raw Exports
 
 From the Exports page, managers can download:
+
 - books
 - members
 - loans
@@ -238,6 +247,7 @@ From the Exports page, managers can download:
 ### BI Report Exports
 
 From the Dashboard BI Workspace, managers can export:
+
 - sales trends report data
 - circulation report data
 - inventory health report data
@@ -247,6 +257,7 @@ These BI exports reflect the current selected report and filter settings.
 ### Loan Export Notes
 
 Loans CSV includes derived status values such as:
+
 - active
 - due_soon
 - overdue
@@ -257,6 +268,7 @@ Loans CSV includes derived status values such as:
 ## Settings
 
 Managers can configure the global low-stock threshold used for:
+
 - dashboard stock panels
 - inventory health reporting
 - default threshold logic

@@ -91,6 +91,7 @@ The backend provides endpoints for authentication, books, inventory/location man
 ### Search and Filtering
 
 `GET /books` supports:
+
 - `q`
 - `title`
 - `author`
@@ -131,6 +132,7 @@ The backend provides endpoints for authentication, books, inventory/location man
 ### Member Search Filters
 
 `GET /members` supports:
+
 - `name`
 - `email`
 - `phone_number`
@@ -175,6 +177,7 @@ The backend provides endpoints for authentication, books, inventory/location man
 ### Loan Status Model
 
 Loan status is derived from dates:
+
 - `active`
 - `due_soon`
 - `overdue`
@@ -183,6 +186,7 @@ Loan status is derived from dates:
 ### Loan Filters
 
 `GET /loans` supports:
+
 - `active_only`
 - `overdue_only`
 - `due_soon_only`
@@ -225,6 +229,7 @@ Loan status is derived from dates:
 ### Sales Filters
 
 `GET /sales` supports:
+
 - `member_id`
 - `book_id`
 - `offset`
@@ -273,6 +278,7 @@ This endpoint powers the operational inventory panels on the dashboard.
 `GET /reports/sales-trends`
 
 Supported query params:
+
 - `days`
 - `bucket` = `week` or `month`
 - `metric` = `revenue` or `quantity`
@@ -280,9 +286,11 @@ Supported query params:
 ### Circulation Reports
 
 `GET /reports/checkouts-by-genre`
+
 - supports `days`
 
 `GET /reports/top-titles`
+
 - supports `days`
 - supports `limit`
 
@@ -291,6 +299,7 @@ Supported query params:
 `GET /reports/inventory-health`
 
 Supported query params:
+
 - `scope` = `all` or `attention_only`
 
 ### Report CSV Export
@@ -298,6 +307,7 @@ Supported query params:
 `GET /reports/export.csv`
 
 Supported query params:
+
 - `report`
 - `days`
 - `bucket`
@@ -306,6 +316,7 @@ Supported query params:
 - `scope`
 
 Exportable BI datasets:
+
 - `sales_trends`
 - `checkouts_by_genre`
 - `top_titles`
@@ -396,6 +407,7 @@ Exportable BI datasets:
 BookHive currently uses FastAPI’s default error response structure, primarily through readable `detail` messages.
 
 Examples:
+
 - invalid credentials
 - book not found
 - member not found
