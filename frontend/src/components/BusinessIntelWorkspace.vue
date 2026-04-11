@@ -126,18 +126,7 @@ const exporting = ref(false)
 const supportedStyles = computed(() => new Set(report.value?.available_styles ?? []))
 const currentRows = computed(() => report.value?.rows ?? [])
 const currentDetailRows = computed(() => report.value?.detail_rows ?? [])
-const currentTableColumns = computed(() => {
-  if (currentDetailRows.value.length > 0 && report.value?.detail_columns.length) {
-    return report.value.detail_columns
-  }
-  return report.value?.table_columns ?? []
-})
-const currentTableRows = computed(() => {
-  if (currentDetailRows.value.length > 0) {
-    return currentDetailRows.value
-  }
-  return currentRows.value
-})
+
 const hasChartData = computed(
   () => currentRows.value.length > 0 || currentDetailRows.value.length > 0,
 )
@@ -158,21 +147,6 @@ function selectStyle(tile: Tile): void {
 
 function familyIsActive(key: ReportFamily): boolean {
   return selectedFamily.value === key
-}
-
-function prettyStatus(value: string): string {
-  return value.replace(/_/g, ' ').replace(/\b\w/g, (char: string) => char.toUpperCase())
-}
-
-function displayValue(column: string, value: unknown): string {
-  if (value === null || value === undefined) return '—'
-  if (column === 'revenue' || column === 'unit_price' || column === 'line_total') {
-    return `$${Number(value).toFixed(2)}`
-  }
-  if (column === 'status' && typeof value === 'string') {
-    return prettyStatus(value)
-  }
-  return String(value)
 }
 
 function buildQuery(path: string, params: Record<string, string | number>): string {
