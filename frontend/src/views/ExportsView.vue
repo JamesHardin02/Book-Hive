@@ -63,7 +63,6 @@ function exportMembers(): void {
 
 function exportLoans(): void {
   const path = activeLoansOnly.value ? '/exports/loans.csv?active_only=true' : '/exports/loans.csv'
-
   const filename = activeLoansOnly.value ? 'loans_active.csv' : 'loans.csv'
   void downloadCsv(path, filename, 'loans')
 }
@@ -74,11 +73,19 @@ function exportSales(): void {
 </script>
 
 <template>
-  <PageHeader page="Exports" :booksearch="false" />
+  <PageHeader page="Exports" />
+  <p v-if="error" class="error">{{ error }}</p>
+  <p v-if="successMessage" class="success">{{ successMessage }}</p>
 
   <main class="page">
-    <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="successMessage" class="success">{{ successMessage }}</p>
+    <section class="card accent-card">
+      <h2>BI Report Exports</h2>
+      <p>
+        CSV exports for sales trends, circulation reports, and inventory health are now available
+        directly inside the Dashboard BI workspace.
+      </p>
+      <RouterLink class="dashboard-link" to="/dashboard">Open Dashboard BI Workspace</RouterLink>
+    </section>
 
     <section class="card">
       <h2>Books Export</h2>
@@ -173,15 +180,21 @@ button:disabled {
 
 .error {
   color: #c00;
+  padding: 0 24px;
 }
 
 .success {
   color: #0a7a2f;
+  padding: 0 24px;
 }
 
 @media (min-width: 900px) {
   .page {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .accent-card {
+    grid-column: 1 / -1;
   }
 
   #sales-btn {

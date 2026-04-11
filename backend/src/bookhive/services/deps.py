@@ -17,6 +17,7 @@ from bookhive.services.inventory_service import InventoryService
 from bookhive.services.loan_service import LoanService
 from bookhive.services.member_service import MemberService
 from bookhive.services.openlibrary_service import OpenLibraryService
+from bookhive.services.reporting_service import ReportingService
 from bookhive.services.sale_service import SaleService
 from bookhive.services.settings_service import SettingsService
 from fastapi import Depends
@@ -76,3 +77,10 @@ def get_sale_service(db: Session = Depends(get_db)) -> SaleService:
 
 def get_export_service(db: Session = Depends(get_db)) -> ExportService:
     return ExportService(db)
+
+
+def get_reporting_service(
+    db: Session = Depends(get_db),
+    settings: SettingsService = Depends(get_settings_service),
+) -> ReportingService:
+    return ReportingService(db, settings)
