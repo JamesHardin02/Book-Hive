@@ -161,9 +161,7 @@ onMounted(() => {
           <div class="panel-header">
             <div>
               <h2>Low Stock</h2>
-              <p class="panel-subtitle">
-                Titles at or below their set threshold.
-              </p>
+              <p class="panel-subtitle">Titles at or below their set threshold.</p>
             </div>
             <RouterLink class="panel-link" to="/inventory">Open Inventory</RouterLink>
           </div>

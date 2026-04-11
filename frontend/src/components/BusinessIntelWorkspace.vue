@@ -291,6 +291,12 @@ const chartPalette = [
 const paleYellowFill = 'rgba(236, 223, 157, 0.7)'
 const lineStroke = '#2C3E50'
 
+const plotlyChartKey = computed(() => {
+  const reportName = report.value?.report ?? 'none'
+  const rowCount = report.value?.rows.length ?? 0
+  return `${reportName}-${selectedStyle.value}-${rowCount}`
+})
+
 const plotSpec = computed(() => {
   if (!report.value) {
     return {
@@ -325,14 +331,16 @@ const plotSpec = computed(() => {
         },
       ],
       layout: {
-        ...baseLayout,
-        xaxis: undefined,
-        yaxis: undefined,
+        title: report.value.title,
+        legend: { orientation: 'h' },
       },
     }
   }
 
-  if (selectedStyle.value === 'bar' || selectedStyle.value === 'timeline') {
+  const secondaryField = report.value.chart_meta.secondary_value_field
+  const secondaryValues = secondaryField ? rows.map((row) => Number(row[secondaryField] ?? 0)) : []
+
+  if (selectedStyle.value === 'bar') {
     return {
       data: [
         {
@@ -345,7 +353,64 @@ const plotSpec = computed(() => {
           hovertemplate: '%{x}<br>%{y}<extra></extra>',
         },
       ],
-      layout: baseLayout,
+      layout: {
+        ...baseLayout,
+        bargap: 0.28,
+      },
+    }
+  }
+
+  if (selectedStyle.value === 'timeline') {
+    return {
+      data: [
+        {
+          type: 'bar',
+          x: labels,
+          y: values,
+          name: report.value.chart_meta.primary_value_field.replace(/_/g, ' '),
+          marker: {
+            color: labels.map((_, index) => chartPalette[index % chartPalette.length]),
+          },
+          hovertemplate: '%{x}<br>%{y}<extra></extra>',
+        },
+        ...(secondaryField
+          ? [
+              {
+                type: 'scatter',
+                mode: 'lines+markers',
+                x: labels,
+                y: secondaryValues,
+                name: secondaryField.replace(/_/g, ' '),
+                yaxis: 'y2',
+                line: {
+                  color: lineStroke,
+                  width: 2,
+                },
+                marker: {
+                  color: lineStroke,
+                  size: 6,
+                },
+                hovertemplate: '%{x}<br>%{y}<extra></extra>',
+              },
+            ]
+          : []),
+      ],
+      layout: {
+        ...baseLayout,
+        bargap: 0.35,
+        xaxis: {
+          ...baseLayout.xaxis,
+          tickangle: -30,
+        },
+        yaxis2: secondaryField
+          ? {
+              title: secondaryField.replace(/_/g, ' '),
+              overlaying: 'y',
+              side: 'right',
+              showgrid: false,
+            }
+          : undefined,
+      },
     }
   }
 
@@ -429,8 +494,8 @@ onMounted(() => {
       <div>
         <h2>Business Intelligence Workspace</h2>
         <p class="bi-subtitle">
-          Choose a report family, pick a live chart style, then adjust filters to build a dynamic
-          BI chart.
+          Choose a report family, pick a live chart style, then adjust filters to build a dynamic BI
+          chart.
         </p>
       </div>
     </div>
@@ -539,11 +604,7 @@ onMounted(() => {
           :title="`${tile.label} — ${tile.blurb}`"
           @click="selectStyle(tile)"
         >
-          <img
-            class="tile-preview compact-preview"
-            :src="tile.thumbnail"
-            :alt="tile.label"
-          />
+          <img class="tile-preview compact-preview" :src="tile.thumbnail" :alt="tile.label" />
           <div class="tile-copy compact-copy">
             <strong>{{ tile.label }}</strong>
             <span v-if="tile.planned" class="tile-tag muted">Planned</span>
@@ -567,7 +628,7 @@ onMounted(() => {
             </div>
           </div>
 
-          <PlotlyChart :data="plotSpec.data" :layout="plotSpec.layout" :loading="loading" />
+          <PlotlyChart :key="plotlyChartKey" :data="plotSpec.data" :layout="plotSpec.layout" />
         </section>
 
         <section v-else-if="report" class="chart-shell empty-state">

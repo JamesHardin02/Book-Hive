@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type {
   PlotlyModule,
   PlotlyConfig,
@@ -16,6 +16,11 @@ const props = defineProps<{
 const chartEl = ref<HTMLElement | null>(null)
 let plotlyLib: PlotlyModule | null = null
 
+const primaryTraceType = computed(() => {
+  const first = props.data[0] as Record<string, unknown> | undefined
+  return typeof first?.type === 'string' ? first.type : 'scatter'
+})
+
 async function ensurePlotly(): Promise<PlotlyModule> {
   if (plotlyLib) return plotlyLib
 
@@ -29,7 +34,9 @@ async function renderChart(): Promise<void> {
   if (!chartEl.value) return
 
   const Plotly = await ensurePlotly()
-  await Plotly.react(chartEl.value, props.data, props.layout ?? {}, props.config ?? {})
+
+  Plotly.purge(chartEl.value)
+  await Plotly.newPlot(chartEl.value, props.data, props.layout ?? {}, props.config ?? {})
 }
 
 function handleResize(): void {
@@ -43,7 +50,7 @@ onMounted(async () => {
 })
 
 watch(
-  () => [props.data, props.layout, props.config],
+  () => [props.data, props.layout, props.config, primaryTraceType.value],
   async () => {
     await renderChart()
   },
