@@ -25,9 +25,7 @@ function getApiBase(): string {
 async function parseError(res: Response): Promise<string | ValidationErrorDetail[]> {
   try {
     const data = await res.json()
-    // FastAPI validation error
     if (Array.isArray(data?.detail)) return data.detail as ValidationErrorDetail[]
-    // FastAPI simple error: { detail: "message" }
     if (typeof data?.detail === 'string') return data.detail
     return JSON.stringify(data)
   } catch {
@@ -42,6 +40,8 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref<ValidationErrorDetail[] | string | null>(null)
 
   const isAuthenticated = computed(() => user.value !== null)
+
+  let initPromise: Promise<void> | null = null
 
   async function fetchMe(): Promise<void> {
     const res = await fetch(`${getApiBase()}/auth/me`, {
@@ -58,8 +58,18 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function init(): Promise<void> {
     if (initialized.value) return
-    initialized.value = true
-    await fetchMe()
+    if (initPromise) return initPromise
+
+    initPromise = (async () => {
+      try {
+        await fetchMe()
+      } finally {
+        initialized.value = true
+        initPromise = null
+      }
+    })()
+
+    return initPromise
   }
 
   async function login(email: string, password: string): Promise<void> {
@@ -67,9 +77,8 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      //OAuth2PasswordRequestForm requires x-www-form-urlencoded
       const body = new URLSearchParams()
-      body.set('username', email) // backend treats username field as EMAIL
+      body.set('username', email)
       body.set('password', password)
 
       const res = await fetch(`${getApiBase()}/auth/token`, {
@@ -84,8 +93,8 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error('Login failed')
       }
 
-      // cookie is set by backend; now load user
       await fetchMe()
+      initialized.value = true
     } finally {
       loading.value = false
     }
@@ -115,8 +124,8 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout(): Promise<void> {
     error.value = null
     user.value = null
+    initialized.value = true
 
-    // clear cookie server-side
     await fetch(`${getApiBase()}/auth/logout`, {
       method: 'POST',
       credentials: 'include',

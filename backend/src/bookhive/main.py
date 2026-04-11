@@ -12,6 +12,7 @@ from bookhive.api.health import router as health_router
 from bookhive.api.loans import router as loans_router
 from bookhive.api.locations import router as locations_router
 from bookhive.api.members import router as members_router
+from bookhive.api.reports import router as reports_router
 from bookhive.api.sales import router as sales_router
 from bookhive.api.settings import router as settings_router
 from bookhive.db.init_db import init_db
@@ -47,6 +48,7 @@ app.include_router(books_router)
 app.include_router(locations_router)
 app.include_router(settings_router)
 app.include_router(dashboard_router)
+app.include_router(reports_router)
 app.include_router(members_router)
 app.include_router(loans_router)
 app.include_router(sales_router)

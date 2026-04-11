@@ -10,7 +10,7 @@ const props = defineProps<{
   <button v-else>Submit</button>
 </template>
 
-<style>
+<style scoped>
 button {
   padding: 0.5rem;
   background-color: #e8c456;
