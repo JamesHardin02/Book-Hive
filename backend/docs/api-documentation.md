@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document explains how the backend of Book-Hive works.
+This document explains how the backend of Book‑Hive works.
 
 ## Architecture
 
@@ -14,27 +14,29 @@ Frontend → API → Services → Repositories → Database
 - Services handle logic
 - Repositories talk to the database
 
+---
+
 ## Authentication
 
-The system uses login with a token stored in cookies.
-
-### Endpoints
+### Authentication Endpoints
 
 - POST /auth/register
 - POST /auth/token
 - POST /auth/logout
 - GET /auth/me
 
-### How it works
+### Authentication Flow
 
 1. User logs in
 2. Server creates a token
-3. Token is stored in cookie
+3. Token is stored in a cookie
 4. Protected routes require authentication
+
+---
 
 ## Books
 
-### Endpoints
+### Book Endpoints
 
 - GET /books
 - POST /books
@@ -42,23 +44,25 @@ The system uses login with a token stored in cookies.
 - PATCH /books/{id}
 - DELETE /books/{id}
 
-### What it does
+### Book Features
 
 - create books
 - search books
 - update books
 - delete books
 
-### Flow
+### Book Request Flow
 
 1. Request comes to /books
 2. BookService processes logic
 3. BookRepo saves to database
 4. Response is returned
 
+---
+
 ## Members
 
-### Endpoints
+### Member Endpoints
 
 - POST /members
 - GET /members
@@ -66,93 +70,105 @@ The system uses login with a token stored in cookies.
 - PATCH /members/{id}
 - DELETE /members/{id}
 
-### Flow
+### Member Request Flow
 
 1. Request goes to API
 2. MemberService processes it
 3. MemberRepo accesses database
 
+---
+
 ## Loans
 
-### Endpoints
+### Loan Endpoints
 
 - POST /loans
 - GET /loans
 - PATCH /loans/{id}/return
 
-### Rules
+### Loan Validation Rules
 
 - book must exist
 - member must exist
 - stock must be available
 
-### Flow
+### Loan Processing Flow
 
 1. Request comes in
 2. LoanService checks rules
 3. Inventory is updated
 4. Loan is saved
 
+---
+
 ## Sales
 
-### Endpoints
+### Sales Endpoints
 
 - POST /sales
 - GET /sales
 
-### Rules
+### Sales Validation Rules
 
 - stock must be enough
 - book must exist
 
-### Flow
+### Sales Processing Flow
 
 1. Request comes in
 2. SaleService processes it
 3. Inventory decreases
 4. Sale is saved
 
+---
+
 ## Dashboard
 
-### Endpoint
+### Dashboard Endpoint
 
 - GET /dashboard/low-stock
 
-### What it does
+### Dashboard Features
 
-- shows low stock books
-- shows out of stock books
+- shows low‑stock books
+- shows out‑of‑stock books
+
+---
 
 ## Settings
 
-### Endpoints
+### Settings Endpoints
 
 - GET /settings/low-stock-threshold
 - PUT /settings/low-stock-threshold
 
-### What it does
+### Settings Features
 
-- controls low stock threshold
+- controls low‑stock threshold
+
+---
 
 ## Exports
 
-### Endpoints
+### Export Endpoints
 
 - GET /exports/books.csv
 - GET /exports/members.csv
 - GET /exports/loans.csv
 - GET /exports/sales.csv
 
-### What it does
+### Export Features
 
 - downloads CSV files
 
+---
+
 ## Health
 
-### Endpoint
+### Health Endpoint
 
 - GET /health
 
-### What it does
+### Health Check Behavior
 
 - checks if database is working
