@@ -86,7 +86,7 @@ jobs:
 
       - name: Run Super-Linter
         # Use the official Super-Linter action repo for v8.4.0
-        uses: super-linter/super-linter@61abc07d755095a68f4987d1c2c3d1d64408f1f9
+        uses: super-linter/super-linter@9e863354e3ff62e0727d37183162c4a88873df41
         env:
           # GITHUB_TOKEN is an automatically created token for each workflow run
           # Passing it enables authenticated GitHub API calls (like creating status checks).
